@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tim Ceri - Literasi AI untuk Semua</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        /* Reset dan variabel */
+        :root {
+            --primary: #e74c3c;
+            --secondary: #50332c;
+            --accent: #e74c3c;
+            --light: #f9f9f9;
+            --dark: #502c2c;
+            --text: #333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --cherry: #e74c3c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        /* Header dan Navigasi */
+        header {
+            background-color: white;
+            box-shadow: var(--shadow);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--cherry);
+        }
+        
+        .logo i {
+            margin-right: 10px;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 30px;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        
+        .nav-links a:hover {
+            color: var(--cherry);
+        }
+        
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 150px 0 100px;
+            background: linear-gradient(135deg, var(--cherry), var(--secondary));
+            color: white;
+            text-align: center;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: var(--accent);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+        
+        /* Section Styling */
+        .section {
+            padding: 100px 0;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--dark);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: var(--cherry);
+        }
+        
+        /* Why Section */
+        .why-content {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .why-content p {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        /* About Team Section */
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+        }
+        
+        .about-img {
+            flex: 1;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        .about-img img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: var(--transition);
+        }
+        
+        .about-img:hover img {
+            transform: scale(1.05);
+        }
+        
+        .about-text {
+            flex: 1;
+        }
+        
+        .about-text h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: var(--secondary);
+        }
+        
+        /* Goals & Mission */
+        .goals-mission {
+            background-color: #f0f7ff;
+        }
+        
+        .goals-mission-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .goal-card, .mission-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .goal-card:hover, .mission-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .goal-icon, .mission-icon {
+            font-size: 3rem;
+            color: var(--cherry);
+            margin-bottom: 20px;
+        }
+        
+        /* Best Moments */
+        .moments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .moment-item {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            position: relative;
+            height: 250px;
+        }
+        
+        .moment-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        
+        .moment-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: var(--transition);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+        
+        .moment-item:hover .moment-overlay {
+            opacity: 1;
+        }
+        
+        .moment-item:hover img {
+            transform: scale(1.1);
+        }
+        
+        /* Testimonials */
+        .testimonials {
+            background-color: #f9f9f9;
+        }
+        
+        .testimonial-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .testimonial-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+        
+        .testimonial-card::before {
+            content: '"';
+            font-size: 5rem;
+            color: var(--cherry);
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            opacity: 0.3;
+        }
+        
+        .testimonial-text {
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .author-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+        
+        .author-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* Team Structure */
+        .team-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+        }
+        
+        .team-member {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .team-member:hover {
+            transform: translateY(-10px);
+        }
+        
+        .member-img {
+            width: 100%;
+            height: 250px;
+            overflow: hidden;
+        }
+        
+        .member-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        
+        .team-member:hover .member-img img {
+            transform: scale(1.1);
+        }
+        
+        .member-info {
+            padding: 20px;
+        }
+        
+        .member-role {
+            color: var(--cherry);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        /* Contact Section */
+        .contact-container {
+            display: flex;
+            gap: 50px;
+        }
+        
+        .contact-info {
+            flex: 1;
+        }
+        
+        .contact-form {
+            flex: 1;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+        
+        .contact-icon {
+            font-size: 1.5rem;
+            color: var(--cherry);
+            margin-right: 15px;
+            margin-top: 5px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            border-color: var(--cherry);
+            outline: none;
+        }
+        
+        textarea.form-control {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        /* Education Section */
+        .education {
+            background-color: #f0f7ff;
+        }
+        
+        .education-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .education-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+        
+        .education-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .education-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 20px;
+        }
+        
+        /* Action Section */
+        .action-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .action-card {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .action-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .action-icon {
+            font-size: 3rem;
+            color: var(--cherry);
+            margin-bottom: 20px;
+        }
+        
+        /* Comments Section */
+        .comments {
+            background-color: #f9f9f9;
+        }
+        
+        .comments-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .comment-form {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            margin-bottom: 50px;
+        }
+        
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .comment-item {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+        
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .comment-author {
+            font-weight: 600;
+            color: var(--cherry);
+        }
+        
+        .comment-date {
+            color: #777;
+            font-size: 0.9rem;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--secondary);
+            color: white;
+            padding: 50px 0 20px;
+        }
+        
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .social-links a:hover {
+            background-color: var(--cherry);
+            transform: translateY(-5px);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* CSS khusus untuk section action saja */
+        #action {
+            padding: 100px 0;
+            background-color: #f9f9f9;
+        }
+        
+        #action .action-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        #action .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        #action .section-title h2 {
+            font-size: 2.5rem;
+            color: #2c3e50;
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+        
+        #action .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: #e74c3c;
+        }
+        
+        #action .action-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: start;
+        }
+        
+        #action .campaign-poster {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        #action .campaign-poster:hover {
+            transform: translateY(-10px);
+        }
+        
+        #action .poster-img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        #action .campaign-info {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        #action .campaign-header {
+            margin-bottom: 30px;
+        }
+        
+        #action .campaign-title {
+            font-size: 2rem;
+            color: #e74c3c;
+            margin-bottom: 10px;
+        }
+        
+        #action .campaign-subtitle {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        #action .campaign-dates {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        #action .date-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #action .date-icon {
+            color: #e74c3c;
+            font-size: 1.2rem;
+        }
+        
+        #action .campaign-description {
+            margin-bottom: 30px;
+        }
+        
+        #action .campaign-description p {
+            margin-bottom: 15px;
+        }
+        
+        #action .rules-section, 
+        #action .prizes-section, 
+        #action .how-to-join {
+            margin-bottom: 30px;
+        }
+        
+        #action .section-heading {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #action .section-heading i {
+            color: #e74c3c;
+        }
+        
+        #action .rules-list, 
+        #action .prizes-list, 
+        #action .steps-list {
+            padding-left: 20px;
+        }
+        
+        #action .rules-list li, 
+        #action .prizes-list li, 
+        #action .steps-list li {
+            margin-bottom: 10px;
+        }
+        
+        #action .prize-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        #action .prize-icon {
+            color: gold;
+            font-size: 1.2rem;
+        }
+        
+        #action .action-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+        }
+        
+        #action .action-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-3px);
+        }
+        
+        #action .btn-large {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+        }
+        
+        #action .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        #action .btn-secondary {
+            background-color: #db3434;
+        }
+        
+        #action .btn-secondary:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Responsif khusus untuk section action */
+        @media (max-width: 992px) {
+            #action .action-content {
+                grid-template-columns: 1fr;
+            }
+            
+            #action .campaign-poster {
+                order: 2;
+            }
+            
+            #action .campaign-info {
+                order: 1;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            #action .action-buttons {
+                flex-direction: column;
+            }
+            
+            #action .campaign-dates {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        /* Responsif */
+        @media (max-width: 992px) {
+            .about-content, .contact-container {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background-color: white;
+                flex-direction: column;
+                padding: 20px 0;
+                box-shadow: var(--shadow);
+            }
+            
+            .nav-links.active {
+                display: flex;
+            }
+            
+            .nav-links li {
+                margin: 10px 0;
+                text-align: center;
+            }
+            
+            .hamburger {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .footer-content {
+                flex-direction: column;
+                gap: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header & Navigasi -->
+    <header>
+        <div class="container">
+            <div class="nav-container">
+                <div class="logo">
+                    <i class="fas fa-cherries"></i>
+                    <span>Tim Ceri</span>
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#why">Latar Belakang</a></li>
+                    <li><a href="#about">Tentang Tim</a></li>
+                    <li><a href="#goals">Tujuan & Misi</a></li>
+                    <li><a href="#moments">Momen Terbaik</a></li>
+                    <li><a href="#testimonials">Testimoni</a></li>
+                    <li><a href="#team">Struktur Tim</a></li>
+                    <li><a href="#contact">Kontak</a></li>
+                </ul>
+                <div class="hamburger">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Tim Ceri - Literasi AI untuk Semua</h1>
+                <p>Mendorong pemahaman dan pemanfaatan kecerdasan buatan secara bertanggung jawab di Indonesia</p>
+                <a href="#education" class="btn">Pelajari AI</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Section -->
+    <section class="section" id="why">
+        <div class="container">
+            <div class="section-title">
+                <h2>Kenapa Kami Ada?</h2>
+            </div>
+            <div class="why-content">
+                <p>Di era digital yang semakin maju, kecerdasan buatan (AI) telah menjadi teknologi transformatif yang mengubah berbagai aspek kehidupan. Namun, masih banyak masyarakat Indonesia yang belum memahami potensi dan tantangan yang dibawa oleh AI.</p>
+                <p>Tim Ceri hadir untuk menjembatani kesenjangan pengetahuan ini dengan menyediakan edukasi tentang AI yang mudah dipahami, relevan dengan konteks lokal, dan dapat diakses oleh semua kalangan.</p>
+                <p>Kami percaya bahwa dengan literasi AI yang baik, masyarakat Indonesia dapat memanfaatkan teknologi ini secara optimal sekaligus waspada terhadap risikonya.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Team Section -->
+    <section class="section" id="about">
+        <div class="container">
+            <div class="section-title">
+                <h2>Tentang Tim Ceri</h2>
+            </div>
+            <div class="about-content">
+                <div class="about-img">
+                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80" alt="Tim Ceri">
+                </div>
+                <div class="about-text">
+                    <h3>Siapa Kami?</h3>
+                    <p>Tim Ceri adalah kelompok mahasiswa dan profesional muda yang bersemangat dalam bidang teknologi dan pendidikan. Kami terdiri dari berbagai latar belakang disiplin ilmu, mulai dari ilmu komputer, psikologi, hingga komunikasi.</p>
+                    <p>Nama "Ceri" sendiri merupakan akronim dari "Cerdas, Empati, Responsif, dan Inovatif" - nilai-nilai yang kami junjung dalam setiap aktivitas kami.</p>
+                    <p>Sejak didirikan pada tahun 2022, kami telah menyelenggarakan berbagai workshop, seminar, dan kampanye edukasi tentang AI untuk berbagai audiens, mulai dari pelajar hingga profesional.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Goals & Mission Section -->
+    <section class="section goals-mission" id="goals">
+        <div class="container">
+            <div class="section-title">
+                <h2>Tujuan & Misi Kami</h2>
+            </div>
+            <div class="goals-mission-container">
+                <div class="goal-card">
+                    <div class="goal-icon">
+                        <i class="fas fa-bullseye"></i>
+                    </div>
+                    <h3>Tujuan Kami</h3>
+                    <p>Meningkatkan literasi AI di Indonesia sebesar 50% di kalangan pelajar dan profesional muda dalam 3 tahun ke depan melalui program edukasi yang inklusif dan mudah diakses.</p>
+                </div>
+                <div class="mission-card">
+                    <div class="mission-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <h3>Misi Kami</h3>
+                    <ul style="text-align: left; padding-left: 20px;">
+                        <li>Menyediakan materi edukasi AI yang mudah dipahami</li>
+                        <li>Menyelenggarakan workshop dan pelatihan praktis</li>
+                        <li>Membangun komunitas yang peduli dengan perkembangan AI</li>
+                        <li>Mendorong etika dan tanggung jawab dalam pemanfaatan AI</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Best Moments Section -->
+    <section class="section" id="moments">
+        <div class="container">
+            <div class="section-title">
+                <h2>Momen Terbaik</h2>
+            </div>
+            <div class="moments-grid">
+                <div class="moment-item">
+                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80" alt="Workshop AI">
+                    <div class="moment-overlay">
+                        <h3>Workshop AI Dasar</h3>
+                        <p>Workshop pertama kami di Universitas Indonesia</p>
+                    </div>
+                </div>
+                <div class="moment-item">
+                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80" alt="Seminar Nasional">
+                    <div class="moment-overlay">
+                        <h3>Seminar Nasional AI</h3>
+                        <p>Menghadirkan pakar AI dari dalam dan luar negeri</p>
+                    </div>
+                </div>
+                <div class="moment-item">
+                    <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80" alt="Kompetisi AI">
+                    <div class="moment-overlay">
+                        <h3>Kompetisi AI untuk Pelajar</h3>
+                        <p>Mendorong kreativitas pelajar dalam memanfaatkan AI</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="section testimonials" id="testimonials">
+        <div class="container">
+            <div class="section-title">
+                <h2>Apa Kata Mereka?</h2>
+            </div>
+            <div class="testimonial-container">
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        "Workshop dari Tim Ceri sangat membantu saya memahami dasar-dasar AI. Materi disampaikan dengan cara yang mudah dipahami bahkan untuk pemula seperti saya."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-img">
+                            <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Sari">
+                        </div>
+                        <div>
+                            <h4>Sari Wijaya</h4>
+                            <p>Mahasiswa Psikologi</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        "Sebagai guru, saya sangat menghargai inisiatif Tim Ceri dalam meningkatkan literasi AI. Materi yang mereka siapkan sangat relevan dengan kurikulum sekolah."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-img">
+                            <img src="https://randomuser.me/api/portraits/men/54.jpg" alt="Budi">
+                        </div>
+                        <div>
+                            <h4>Budi Santoso</h4>
+                            <p>Guru SMA</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-text">
+                        "Pendekatan Tim Ceri dalam menjelaskan konsep AI yang kompleks menjadi sederhana sangat mengesankan. Saya merekomendasikan program mereka kepada siapa pun."
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-img">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Dewi">
+                        </div>
+                        <div>
+                            <h4>Dewi Lestari</h4>
+                            <p>Wirausaha</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Structure Section -->
+    <section class="section" id="team">
+        <div class="container">
+            <div class="section-title">
+                <h2>Struktur Tim</h2>
+            </div>
+            <div class="team-container">
+                <div class="team-member">
+                    <div class="member-img">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Andi">
+                    </div>
+                    <div class="member-info">
+                        <h3>Andi Pratama</h3>
+                        <div class="member-role">Ketua Tim</div>
+                        <p>Mahasiswa Teknik Informatika, Universitas Indonesia</p>
+                    </div>
+                </div>
+                <div class="team-member">
+                    <div class="member-img">
+                        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Rina">
+                    </div>
+                    <div class="member-info">
+                        <h3>Rina Sari</h3>
+                        <div class="member-role">Koordinator Edukasi</div>
+                        <p>Mahasiswa Ilmu Komputer, Institut Teknologi Bandung</p>
+                    </div>
+                </div>
+                <div class="team-member">
+                    <div class="member-img">
+                        <img src="https://randomuser.me/api/portraits/men/76.jpg" alt="Budi">
+                    </div>
+                    <div class="member-info">
+                        <h3>Budi Hartono</h3>
+                        <div class="member-role">Koordinator Riset</div>
+                        <p>Mahasiswa Statistika, Universitas Gadjah Mada</p>
+                    </div>
+                </div>
+                <div class="team-member">
+                    <div class="member-img">
+                        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Sari">
+                    </div>
+                    <div class="member-info">
+                        <h3>Sari Dewi</h3>
+                        <div class="member-role">Dosen Pembimbing</div>
+                        <p>Dosen Teknik Informatika, Universitas Indonesia</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section contact" id="contact">
+        <div class="container">
+            <div class="section-title">
+                <h2>Kontak Kami</h2>
+            </div>
+            <div class="contact-container">
+                <div class="contact-info">
+                    <h3>Mari Terhubung!</h3>
+                    <p>Kami selalu terbuka untuk kolaborasi, pertanyaan, atau sekadar berdiskusi tentang AI.</p>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div>
+                            <h4>Lokasi</h4>
+                            <p>Depok, Jawa Barat, Indonesia</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h4>Email</h4>
+                            <p>timceri@example.com</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div>
+                            <h4>Telepon</h4>
+                            <p>+62 812 3456 7890</p>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-hashtag"></i>
+                        </div>
+                        <div>
+                            <h4>Sosial Media</h4>
+                            <div class="social-links">
+                                <a href="#"><i class="fab fa-instagram"></i></a>
+                                <a href="#"><i class="fab fa-twitter"></i></a>
+                                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                                <a href="#"><i class="fab fa-youtube"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="contact-form">
+                    <form>
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Nama Lengkap" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="email" class="form-control" placeholder="Alamat Email" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Subjek Pesan" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea class="form-control" placeholder="Pesan Anda" required></textarea>
+                        </div>
+                        <button type="submit" class="btn">Kirim Pesan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Education Section -->
+    <section class="section education" id="education">
+        <div class="container">
+            <div class="section-title">
+                <h2>Edukasi AI</h2>
+            </div>
+            <div class="education-container">
+                <div class="education-card">
+                    <div class="education-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <h3>Apa Itu AI?</h3>
+                    <p>Kecerdasan Buatan (AI) adalah simulasi proses kecerdasan manusia oleh mesin, terutama sistem komputer. AI mencakup pembelajaran mesin, pemrosesan bahasa alami, penglihatan komputer, dan lainnya.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Pelajari Lebih Lanjut</a>
+                </div>
+                <div class="education-card">
+                    <div class="education-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3>Machine Learning</h3>
+                    <p>Machine Learning adalah cabang AI yang memungkinkan komputer belajar dari data tanpa diprogram secara eksplisit. Teknik ini digunakan untuk pengenalan pola, prediksi, dan pengambilan keputusan.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Pelajari Lebih Lanjut</a>
+                </div>
+                <div class="education-card">
+                    <div class="education-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Etika AI</h3>
+                    <p>Etika AI membahas tentang penggunaan AI yang bertanggung jawab, termasuk privasi data, bias algoritma, transparansi, dan dampak sosial. Penting untuk memastikan AI digunakan untuk kebaikan bersama.</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Pelajari Lebih Lanjut</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="action">
+        <div class="container">
+            <div class="section-title">
+                <h2>Aksi Nyata</h2>
+            </div>
+            <div class="action-container">
+                <div class="campaign-poster">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80" alt="Poster Kampanye AI Challenge 2023" class="poster-img">
+                </div>
+                
+                <div class="campaign-info">
+                    <div class="campaign-header">
+                        <h2 class="campaign-title">AI Challenge 2023</h2>
+                        <p class="campaign-subtitle">"Solusi AI untuk Pendidikan Indonesia"</p>
+                        
+                        <div class="campaign-dates">
+                            <div class="date-item">
+                                <i class="fas fa-calendar-alt date-icon"></i>
+                                <div>
+                                    <strong>Pendaftaran:</strong> 1 - 30 November 2023
+                                </div>
+                            </div>
+                            <div class="date-item">
+                                <i class="fas fa-flag-checkered date-icon"></i>
+                                <div>
+                                    <strong>Pengumuman:</strong> 15 Desember 2023
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="campaign-description">
+                        <p>AI Challenge 2023 adalah kompetisi tahunan yang diselenggarakan oleh Tim Ceri untuk mendorong inovasi dalam pemanfaatan kecerdasan buatan (AI) untuk memecahkan masalah pendidikan di Indonesia.</p>
+                        <p>Kami mengajak pelajar, mahasiswa, dan profesional muda untuk mengembangkan solusi AI kreatif yang dapat meningkatkan akses, kualitas, dan efisiensi pendidikan di Indonesia.</p>
+                    </div>
+                    
+                    <div class="rules-section">
+                        <h3 class="section-heading">
+                            <i class="fas fa-clipboard-list"></i>
+                            Ketentuan Challenge
+                        </h3>
+                        <ul class="rules-list">
+                            <li>Peserta dapat berpartisipasi secara individu atau tim (maksimal 3 orang)</li>
+                            <li>Kategori peserta: Pelajar SMA/Sederajat, Mahasiswa, dan Umum (max 30 tahun)</li>
+                            <li>Solusi harus menggunakan teknologi AI/ML sebagai komponen utama</li>
+                            <li>Karya harus orisinal dan belum pernah dipublikasikan sebelumnya</li>
+                            <li>Peserta harus mengirimkan proposal dan prototipe (jika ada)</li>
+                            <li>Batas akhir pengumpulan: 30 November 2023 pukul 23.59 WIB</li>
+                            <li>Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="prizes-section">
+                        <h3 class="section-heading">
+                            <i class="fas fa-trophy"></i>
+                            Hadiah Pemenang
+                        </h3>
+                        <ul class="prizes-list">
+                            <li class="prize-item">
+                                <i class="fas fa-medal prize-icon"></i>
+                                <div>
+                                    <strong>Juara 1:</strong> Rp 15.000.000 + Sertifikat + Mentorship AI
+                                </div>
+                            </li>
+                            <li class="prize-item">
+                                <i class="fas fa-medal prize-icon"></i>
+                                <div>
+                                    <strong>Juara 2:</strong> Rp 10.000.000 + Sertifikat + Mentorship AI
+                                </div>
+                            </li>
+                            <li class="prize-item">
+                                <i class="fas fa-medal prize-icon"></i>
+                                <div>
+                                    <strong>Juara 3:</strong> Rp 7.500.000 + Sertifikat + Mentorship AI
+                                </div>
+                            </li>
+                            <li class="prize-item">
+                                <i class="fas fa-award prize-icon"></i>
+                                <div>
+                                    <strong>5 Nominasi Terbaik:</strong> Sertifikat + Paket merchandise Tim Ceri
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="how-to-join">
+                        <h3 class="section-heading">
+                            <i class="fas fa-sign-in-alt"></i>
+                            Cara Mengikuti
+                        </h3>
+                        <ol class="steps-list">
+                            <li>Daftar melalui formulir pendaftaran online di website ini</li>
+                            <li>Unduh panduan dan template proposal dari link yang disediakan</li>
+                            <li>Kirim proposal dan materi pendukung melalui email ke challenge@timceri.id</li>
+                            <li>Tunggu konfirmasi penerimaan dari panitia dalam 3x24 jam</li>
+                            <li>Ikuti sesi mentoring online yang akan dijadwalkan oleh panitia</li>
+                            <li>Presentasikan karya Anda di final challenge (15 Desember 2023)</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="#" class="btn btn-large">Daftar Sekarang</a>
+                        <a href="#" class="btn btn-secondary btn-large">Download Panduan</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comments Section -->
+    <section class="section comments" id="comments">
+        <div class="container">
+            <div class="section-title">
+                <h2>Mari Beraksi Bersama Ceri</h2>
+            </div>
+            <div class="comments-container">
+                <div class="comment-form">
+                    <h3>Berikan Komentar atau Saran</h3>
+                    <form>
+                        <div class="form-group">
+                            <input type="text" class="form-control" placeholder="Nama Anda" required>
+                        </div>
+                        <div class="form-group">
+                            <textarea class="form-control" placeholder="Komentar atau saran Anda" required></textarea>
+                        </div>
+                        <button type="submit" class="btn">Kirim Komentar</button>
+                    </form>
+                </div>
+                
+                <div class="comment-list">
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-author">Ahmad Fauzi</div>
+                            <div class="comment-date">15 Oktober 2023</div>
+                        </div>
+                        <p>Kegiatan workshop AI untuk pelajar sangat bermanfaat. Anak saya menjadi lebih tertarik dengan teknologi setelah mengikutinya.</p>
+                    </div>
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-author">Diana Putri</div>
+                            <div class="comment-date">12 Oktober 2023</div>
+                        </div>
+                        <p>Materi yang disampaikan mudah dipahami. Sangat membantu saya yang baru mulai belajar tentang AI. Kapan ada workshop lagi?</p>
+                    </div>
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-author">Rizky Pratama</div>
+                            <div class="comment-date">8 Oktober 2023</div>
+                        </div>
+                        <p>Terima kasih Tim Ceri! Berkat seminar yang kemarin, saya jadi lebih paham tentang peluang karir di bidang AI.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="footer-logo">
+                        <i class="fas fa-cherries"></i>
+                        Tim Ceri
+                    </div>
+                    <p>Mendorong literasi AI yang bertanggung jawab di Indonesia.</p>
+                </div>
+                <div>
+                    <h4>Ikuti Kami</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#"><i class="fab fa-youtube"></i></a>
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Tim Ceri. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const commentsRef = db.ref('comments');
+
+        // ==================== COMMENT FUNCTIONS ====================
+        const commentForm = document.querySelector('.comment-form form');
+        const commentList = document.querySelector('.comment-list');
+
+        // Load comments from Firebase
+        function loadComments() {
+            commentList.innerHTML = '<p style="text-align: center; color: #999;">Memuat komentar...</p>';
+            
+            commentsRef.orderByChild('timestamp').on('value', (snapshot) => {
+                commentList.innerHTML = '';
+                const comments = [];
+                
+                snapshot.forEach((childSnapshot) => {
+                    const comment = {
+                        id: childSnapshot.key,
+                        ...childSnapshot.val()
+                    };
+                    comments.push(comment);
+                });
+                
+                if (comments.length === 0) {
+                    commentList.innerHTML = '<p style="text-align: center; color: #999;">Belum ada komentar. Jadilah yang pertama berkomentar!</p>';
+                    return;
+                }
+                
+                // Sort by timestamp descending (newest first)
+                comments.sort((a, b) => b.timestamp - a.timestamp);
+                
+                comments.forEach(comment => {
+                    const commentItem = createCommentElement(comment);
+                    commentList.appendChild(commentItem);
+                });
+            }, (error) => {
+                console.error('Error loading comments:', error);
+                commentList.innerHTML = '<p style="text-align: center; color: #e74c3c;">Gagal memuat komentar. Silakan refresh halaman.</p>';
+            });
+        }
+
+        // Create comment element
+        function createCommentElement(comment) {
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment-item';
+            commentDiv.style.animation = 'fadeIn 0.5s ease';
+            
+            // Check if there are replies
+            const hasReplies = comment.replies && Object.keys(comment.replies).length > 0;
+            const replyCount = hasReplies ? Object.keys(comment.replies).length : 0;
+            
+            commentDiv.innerHTML = `
+                <div class="comment-header">
+                    <div>
+                        <div class="comment-author">${escapeHtml(comment.name)}</div>
+                        ${hasReplies ? `<small style="color: #3498db; font-size: 0.85rem; margin-top: 3px; display: inline-block;"><i class="fas fa-reply"></i> ${replyCount} balasan dari Tim Ceri</small>` : ''}
+                    </div>
+                    <div class="comment-date">${comment.date}</div>
+                </div>
+                <p style="margin-bottom: ${hasReplies ? '15px' : '0'};">${escapeHtml(comment.text)}</p>
+                
+                ${hasReplies ? `
+                    <div style="margin-left: 20px; border-left: 3px solid #e74c3c; padding-left: 15px; margin-top: 15px; background: #fff5f5; padding: 15px; border-radius: 5px;">
+                        <div style="font-weight: 600; color: #e74c3c; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-reply"></i> Balasan dari Tim Ceri:
+                        </div>
+                        ${generateRepliesHTML(comment.replies)}
+                    </div>
+                ` : ''}
+                
+                <button class="delete-comment" data-id="${comment.id}" style="background: none; border: none; color: var(--cherry); cursor: pointer; font-size: 0.9rem; margin-top: 10px; transition: all 0.3s ease;">
+                    <i class="fas fa-trash"></i> Hapus
+                </button>
+            `;
+            
+            // Add delete functionality
+            const deleteBtn = commentDiv.querySelector('.delete-comment');
+            deleteBtn.addEventListener('click', function() {
+                deleteComment(comment.id);
+            });
+            
+            return commentDiv;
+        }
+
+        // Generate replies HTML
+        function generateRepliesHTML(replies) {
+            if (!replies) return '';
+            
+            // Convert replies object to array and sort by timestamp
+            const repliesArray = Object.entries(replies).map(([id, reply]) => ({
+                id,
+                ...reply
+            })).sort((a, b) => a.timestamp - b.timestamp);
+            
+            let html = '<div style="display: flex; flex-direction: column; gap: 12px;">';
+            
+            repliesArray.forEach((reply) => {
+                html += `
+                    <div style="background: white; padding: 12px; border-radius: 8px; border: 1px solid #ffe0e0;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, #e74c3c, #c0392b); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 0.85rem;">
+                                    AC
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600; color: #e74c3c; font-size: 0.95rem;">
+                                        ${reply.adminName || 'Admin Ceri'}
+                                        <span style="background: #e74c3c; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; margin-left: 5px;">ADMIN</span>
+                                    </div>
+                                    <div style="font-size: 0.8rem; color: #999;">${reply.date}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <p style="margin: 0; color: #555; line-height: 1.6; font-size: 0.95rem;">${escapeHtml(reply.text)}</p>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            return html;
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Format date
+        function formatDate() {
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            const now = new Date();
+            return `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+        }
+
+        // Add new comment
+        commentForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nameInput = this.querySelector('input[type="text"]');
+            const textInput = this.querySelector('textarea');
+            const submitBtn = this.querySelector('button[type="submit"]');
+            
+            const name = nameInput.value.trim();
+            const text = textInput.value.trim();
+            
+            if (name === '' || text === '') {
+                showMessage('Mohon isi nama dan komentar Anda!', 'error');
+                return;
+            }
+            
+            // Disable button to prevent double submission
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Mengirim...';
+            
+            // Create new comment object
+            const newComment = {
+                name: name,
+                text: text,
+                date: formatDate(),
+                timestamp: Date.now()
+            };
+            
+            // Save to Firebase
+            commentsRef.push(newComment)
+                .then(() => {
+                    // Clear form
+                    nameInput.value = '';
+                    textInput.value = '';
+                    
+                    // Show success message
+                    showMessage('Komentar berhasil ditambahkan!', 'success');
+                    
+                    // Re-enable button
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Kirim Komentar';
+                    
+                    // Scroll to comments
+                    setTimeout(() => {
+                        commentList.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 500);
+                })
+                .catch((error) => {
+                    console.error('Error adding comment:', error);
+                    showMessage('Gagal menambahkan komentar. Silakan coba lagi.', 'error');
+                    
+                    // Re-enable button
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Kirim Komentar';
+                });
+        });
+
+        // Delete comment
+        function deleteComment(id) {
+            if (!confirm('Apakah Anda yakin ingin menghapus komentar ini?')) {
+                return;
+            }
+            
+            commentsRef.child(id).remove()
+                .then(() => {
+                    showMessage('Komentar berhasil dihapus!', 'success');
+                })
+                .catch((error) => {
+                    console.error('Error deleting comment:', error);
+                    showMessage('Gagal menghapus komentar. Silakan coba lagi.', 'error');
+                });
+        }
+
+        // Show message notification
+        function showMessage(message, type) {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                padding: 15px 25px;
+                background-color: ${type === 'success' ? '#4CAF50' : '#f44336'};
+                color: white;
+                border-radius: 5px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                z-index: 9999;
+                animation: slideIn 0.3s ease;
+            `;
+            messageDiv.textContent = message;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(messageDiv);
+                }, 300);
+            }, 3000);
+        }
+
+        // Add animation styles
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .delete-comment:hover {
+                color: #c0392b !important;
+                transform: scale(1.1);
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Load comments on page load
+        loadComments();
+        
+        // Toggle menu untuk tampilan mobile
+        document.querySelector('.hamburger').addEventListener('click', function() {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+        
+        // Tutup menu saat link di klik (untuk mobile)
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function() {
+                document.querySelector('.nav-links').classList.remove('active');
+            });
+        });
+        
+        // Smooth scroll untuk navigasi
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                if(targetId === '#') return;
+                
+                const targetElement = document.querySelector(targetId);
+                if(targetElement) {
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // ==================== LOAD CONTENT FROM FIREBASE ====================
+        const contentRef = db.ref('content');
+
+        // Load Latar Belakang
+        contentRef.child('latar-belakang').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const whyTitle = document.querySelector('#why .section-title h2');
+                const whyContent = document.querySelector('#why .why-content');
+                
+                if (whyTitle && data.title) {
+                    whyTitle.textContent = data.title;
+                }
+                if (whyContent && data.content) {
+                    whyContent.innerHTML = data.content.split('\n\n').map(p => `<p>${p}</p>`).join('');
+                }
+            }
+        });
+
+        // Load Tentang Tim
+        contentRef.child('tentang-tim').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const aboutTitle = document.querySelector('#about .section-title h2');
+                const aboutText = document.querySelector('#about .about-text');
+                
+                if (aboutTitle && data.title) {
+                    aboutTitle.textContent = data.title;
+                }
+                if (aboutText && data.description) {
+                    aboutText.innerHTML = '<h3>Siapa Kami?</h3>' + 
+                        data.description.split('\n\n').map(p => `<p>${p}</p>`).join('');
+                }
+            }
+        });
+
+        // Load Tujuan & Misi
+        contentRef.child('tujuan-misi').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const tujuanCard = document.querySelector('.goal-card p');
+                const misiList = document.querySelector('.mission-card ul');
+                
+                if (tujuanCard && data.tujuan) {
+                    tujuanCard.textContent = data.tujuan;
+                }
+                if (misiList && data) {
+                    misiList.innerHTML = '';
+                    ['misi1', 'misi2', 'misi3', 'misi4'].forEach(key => {
+                        if (data[key]) {
+                            const li = document.createElement('li');
+                            li.textContent = data[key];
+                            misiList.appendChild(li);
+                        }
+                    });
+                }
+            }
+        });
+
+        // Load Kontak
+        contentRef.child('kontak').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                const contactItems = document.querySelectorAll('#contact .contact-item');
+                
+                if (contactItems[0] && data.location) {
+                    contactItems[0].querySelector('p').textContent = data.location;
+                }
+                if (contactItems[1] && data.email) {
+                    contactItems[1].querySelector('p').textContent = data.email;
+                }
+                if (contactItems[2] && data.phone) {
+                    contactItems[2].querySelector('p').textContent = data.phone;
+                }
+            }
+        });
+
+        // ==================== LOAD MOMEN TERBAIK ====================
+        const momentsRef = db.ref('moments');
+
+        momentsRef.on('value', (snapshot) => {
+            const momentsGrid = document.querySelector('.moments-grid');
+            if (!momentsGrid) return;
+            
+            momentsGrid.innerHTML = '';
+            
+            snapshot.forEach((child) => {
+                const moment = child.val();
+                const momentItem = document.createElement('div');
+                momentItem.className = 'moment-item';
+                momentItem.innerHTML = `
+                    <img src="${moment.image}" alt="${moment.title}">
+                    <div class="moment-overlay">
+                        <h3>${moment.title}</h3>
+                        <p>${moment.description}</p>
+                    </div>
+                `;
+                momentsGrid.appendChild(momentItem);
+            });
+        });
+
+        // ==================== LOAD TESTIMONI ====================
+        const testimonialsRef = db.ref('testimonials');
+
+        testimonialsRef.on('value', (snapshot) => {
+            const testimonialContainer = document.querySelector('.testimonial-container');
+            if (!testimonialContainer) return;
+            
+            testimonialContainer.innerHTML = '';
+            
+            snapshot.forEach((child) => {
+                const testimonial = child.val();
+                const testimonialCard = document.createElement('div');
+                testimonialCard.className = 'testimonial-card';
+                testimonialCard.innerHTML = `
+                    <div class="testimonial-text">
+                        "${testimonial.text}"
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-img">
+                            <img src="${testimonial.image}" alt="${testimonial.name}">
+                        </div>
+                        <div>
+                            <h4>${testimonial.name}</h4>
+                            <p>${testimonial.position}</p>
+                        </div>
+                    </div>
+                `;
+                testimonialContainer.appendChild(testimonialCard);
+            });
+        });
+
+        // ==================== LOAD STRUKTUR TIM ====================
+        const teamRef = db.ref('team');
+
+        teamRef.on('value', (snapshot) => {
+            const teamContainer = document.querySelector('.team-container');
+            if (!teamContainer) return;
+            
+            teamContainer.innerHTML = '';
+            
+            snapshot.forEach((child) => {
+                const member = child.val();
+                const teamMember = document.createElement('div');
+                teamMember.className = 'team-member';
+                teamMember.innerHTML = `
+                    <div class="member-img">
+                        <img src="${member.image}" alt="${member.name}">
+                    </div>
+                    <div class="member-info">
+                        <h3>${member.name}</h3>
+                        <div class="member-role">${member.position}</div>
+                        <p>${member.description}</p>
+                    </div>
+                `;
+                teamContainer.appendChild(teamMember);
+            });
+        });
+
+        // ==================== LOAD EDUKASI AI ====================
+        const educationRef = db.ref('education');
+
+        educationRef.on('value', (snapshot) => {
+            const educationContainer = document.querySelector('.education-container');
+            if (!educationContainer) return;
+            
+            educationContainer.innerHTML = '';
+            
+            snapshot.forEach((child) => {
+                const education = child.val();
+                const educationCard = document.createElement('div');
+                educationCard.className = 'education-card';
+                educationCard.innerHTML = `
+                    <div class="education-icon">
+                        <i class="${education.icon}"></i>
+                    </div>
+                    <h3>${education.title}</h3>
+                    <p>${education.description}</p>
+                    <a href="#" class="btn" style="margin-top: 15px;">Pelajari Lebih Lanjut</a>
+                `;
+                educationContainer.appendChild(educationCard);
+            });
+        });
+    </script>
+</body>
+</html>

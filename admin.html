@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Tim Ceri</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        /* Reset dan Variabel */
+        :root {
+            --primary: #e74c3c;
+            --secondary: #2c3e50;
+            --accent: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --sidebar-width: 250px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f6fa;
+            color: #333;
+        }
+
+        /* Layout */
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--secondary);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            transition: all 0.3s;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: var(--primary);
+            text-align: center;
+        }
+
+        .sidebar-header h2 {
+            color: white;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--primary);
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 20px;
+        }
+
+        /* Header */
+        .admin-header {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left h1 {
+            color: var(--secondary);
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+
+        .header-left p {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-header h3 {
+            color: var(--secondary);
+            font-size: 1.3rem;
+        }
+
+        .section-content {
+            padding: 20px;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: var(--secondary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* Image Upload */
+        .image-upload {
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .image-upload:hover {
+            border-color: var(--accent);
+        }
+
+        .image-upload i {
+            font-size: 2rem;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Comment Management */
+        .comment-item {
+            border: 1px solid #eee;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .comment-date {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        /* Team Member */
+        .team-member-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .sidebar-header h2, .menu-item span {
+                display: none;
+            }
+            
+            .menu-item {
+                justify-content: center;
+                padding: 15px;
+            }
+            
+            .menu-item i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+            
+            .main-content {
+                margin-left: 70px;
+            }
+            
+            .team-member-form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-cherries"></i> Admin Ceri</h2>
+            </div>
+            <div class="sidebar-menu">
+                <a href="#" class="menu-item active" data-target="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="menu-item" data-target="latar-belakang">
+                    <i class="fas fa-question-circle"></i>
+                    <span>Latar Belakang</span>
+                </a>
+                <a href="#" class="menu-item" data-target="tentang-tim">
+                    <i class="fas fa-users"></i>
+                    <span>Tentang Tim</span>
+                </a>
+                <a href="#" class="menu-item" data-target="tujuan-misi">
+                    <i class="fas fa-bullseye"></i>
+                    <span>Tujuan & Misi</span>
+                </a>
+                <a href="#" class="menu-item" data-target="momen-terbaik">
+                    <i class="fas fa-images"></i>
+                    <span>Momen Terbaik</span>
+                </a>
+                <a href="#" class="menu-item" data-target="testimoni">
+                    <i class="fas fa-comment"></i>
+                    <span>Testimoni</span>
+                </a>
+                <a href="#" class="menu-item" data-target="struktur-tim">
+                    <i class="fas fa-sitemap"></i>
+                    <span>Struktur Tim</span>
+                </a>
+                <a href="#" class="menu-item" data-target="kontak">
+                    <i class="fas fa-address-book"></i>
+                    <span>Kontak</span>
+                </a>
+                <a href="#" class="menu-item" data-target="edukasi">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Edukasi AI</span>
+                </a>
+                <a href="#" class="menu-item" data-target="aksi">
+                    <i class="fas fa-trophy"></i>
+                    <span>Aksi Nyata</span>
+                </a>
+                <a href="#" class="menu-item" data-target="komentar">
+                    <i class="fas fa-comments"></i>
+                    <span>Komentar</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="admin-header">
+                <div class="header-left">
+                    <h1 id="page-title">Dashboard Admin</h1>
+                    <p>Kelola konten website Tim Ceri</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="user-avatar">AD</div>
+                        <div>
+                            <div style="font-weight: 500;">Admin Ceri</div>
+                            <div style="font-size: 0.8rem; color: #7f8c8d;">Super Admin</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger btn-sm" id="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div class="content-section active" id="dashboard">
+                <div class="section-header">
+                    <h3>Dashboard</h3>
+                </div>
+                <div class="section-content">
+                    <p>Selamat datang di Admin Panel Tim Ceri. Gunakan menu di sebelah kiri untuk mengedit berbagai bagian website.</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 30px;">
+                        <div style="background: #e74c3c; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                            <i class="fas fa-comments" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <h3>24</h3>
+                            <p>Komentar Baru</p>
+                        </div>
+                        <div style="background: #3498db; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                            <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <h3>89</h3>
+                            <p>Pendaftar Challenge</p>
+                        </div>
+                        <div style="background: #27ae60; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                            <i class="fas fa-image" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <h3>15</h3>
+                            <p>Foto Kegiatan</p>
+                        </div>
+                        <div style="background: #f39c12; color: white; padding: 20px; border-radius: 8px; text-align: center;">
+                            <i class="fas fa-file-alt" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                            <h3>7</h3>
+                            <p>Materi Edukasi</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section" id="latar-belakang">
+                <div class="section-header">
+                    <h3>Edit Latar Belakang</h3>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Judul Section</label>
+                        <input type="text" class="form-control" data-field="title" value="Kenapa Kami Ada?">
+                    </div>
+                    <div class="form-group">
+                        <label>Konten Latar Belakang</label>
+                        <textarea class="form-control" data-field="content" rows="8">Di era digital yang semakin maju, kecerdasan buatan (AI) telah menjadi teknologi transformatif yang mengubah berbagai aspek kehidupan. Namun, masih banyak masyarakat Indonesia yang belum memahami potensi dan tantangan yang dibawa oleh AI.
+            
+            Tim Ceri hadir untuk menjembatani kesenjangan pengetahuan ini dengan menyediakan edukasi tentang AI yang mudah dipahami, relevan dengan konteks lokal, dan dapat diakses oleh semua kalangan.
+            
+            Kami percaya bahwa dengan literasi AI yang baik, masyarakat Indonesia dapat memanfaatkan teknologi ini secara optimal sekaligus waspada terhadap risikonya.</textarea>
+                    </div>
+                    <button class="btn btn-success" onclick="saveContent('latar-belakang')">
+                        <i class="fas fa-save"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-section" id="tentang-tim">
+                <div class="section-header">
+                    <h3>Edit Tentang Tim Ceri</h3>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Judul Section</label>
+                        <input type="text" class="form-control" data-field="title" value="Tentang Tim Ceri">
+                    </div>
+                    <div class="form-group">
+                        <label>Deskripsi Tim</label>
+                        <textarea class="form-control" data-field="description" rows="8">Tim Ceri adalah kelompok mahasiswa dan profesional muda yang bersemangat dalam bidang teknologi dan pendidikan. Kami terdiri dari berbagai latar belakang disiplin ilmu, mulai dari ilmu komputer, psikologi, hingga komunikasi.
+            
+            Nama "Ceri" sendiri merupakan akronim dari "Cerdas, Empati, Responsif, dan Inovatif" - nilai-nilai yang kami junjung dalam setiap aktivitas kami.
+            
+            Sejak didirikan pada tahun 2022, kami telah menyelenggarakan berbagai workshop, seminar, dan kampanye edukasi tentang AI untuk berbagai audiens, mulai dari pelajar hingga profesional.</textarea>
+                    </div>
+                    <button class="btn btn-success" onclick="saveContent('tentang-tim')">
+                        <i class="fas fa-save"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tujuan & Misi -->
+            <div class="content-section" id="tujuan-misi">
+                <div class="section-header">
+                    <h3>Edit Tujuan & Misi</h3>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Tujuan Tim Ceri</label>
+                        <textarea class="form-control" data-field="tujuan" rows="4">Meningkatkan literasi AI di Indonesia sebesar 50% di kalangan pelajar dan profesional muda dalam 3 tahun ke depan melalui program edukasi yang inklusif dan mudah diakses.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Misi 1</label>
+                        <input type="text" class="form-control" data-field="misi1" value="Menyediakan materi edukasi AI yang mudah dipahami">
+                    </div>
+                    <div class="form-group">
+                        <label>Misi 2</label>
+                        <input type="text" class="form-control" data-field="misi2" value="Menyelenggarakan workshop dan pelatihan praktis">
+                    </div>
+                    <div class="form-group">
+                        <label>Misi 3</label>
+                        <input type="text" class="form-control" data-field="misi3" value="Membangun komunitas yang peduli dengan perkembangan AI">
+                    </div>
+                    <div class="form-group">
+                        <label>Misi 4</label>
+                        <input type="text" class="form-control" data-field="misi4" value="Mendorong etika dan tanggung jawab dalam pemanfaatan AI">
+                    </div>
+                    <button class="btn btn-success" onclick="saveContent('tujuan-misi')">
+                        <i class="fas fa-save"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Momen Terbaik -->
+            <div class="content-section" id="momen-terbaik">
+                <div class="section-header">
+                    <h3>Edit Momen Terbaik</h3>
+                    <button class="btn btn-primary" id="add-moment-btn">
+                        <i class="fas fa-plus"></i> Tambah Momen
+                    </button>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Upload Foto Kegiatan</label>
+                        <div class="image-upload" id="moment-image-upload">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Klik untuk upload foto kegiatan</p>
+                            <img id="moment-image-preview" class="image-preview" src="" alt="Preview">
+                        </div>
+                        <input type="file" id="moment-image-input" style="display: none;" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label>Judul Kegiatan</label>
+                        <input type="text" class="form-control" placeholder="Contoh: Workshop AI Dasar">
+                    </div>
+                    <div class="form-group">
+                        <label>Deskripsi Kegiatan</label>
+                        <textarea class="form-control" rows="3" placeholder="Deskripsi singkat tentang kegiatan"></textarea>
+                    </div>
+                    <button class="btn btn-success">
+                        <i class="fas fa-save"></i> Simpan Momen
+                    </button>
+
+                    <h4 style="margin-top: 30px; margin-bottom: 15px;">Daftar Momen</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Gambar</th>
+                                <th>Judul</th>
+                                <th>Deskripsi</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><img src="https://placehold.co/60x40" alt="Workshop" style="width: 60px; height: 40px; object-fit: cover;"></td>
+                                <td>Workshop AI Dasar</td>
+                                <td>Workshop pertama kami di Universitas Indonesia</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><img src="https://placehold.co/60x40" alt="Seminar" style="width: 60px; height: 40px; object-fit: cover;"></td>
+                                <td>Seminar Nasional AI</td>
+                                <td>Menghadirkan pakar AI dari dalam dan luar negeri</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Testimoni -->
+            <div class="content-section" id="testimoni">
+                <div class="section-header">
+                    <h3>Edit Testimoni</h3>
+                    <button class="btn btn-primary" id="add-testimonial-btn">
+                        <i class="fas fa-plus"></i> Tambah Testimoni
+                    </button>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Nama Pemberi Testimoni</label>
+                        <input type="text" class="form-control" placeholder="Contoh: Sari Wijaya">
+                    </div>
+                    <div class="form-group">
+                        <label>Posisi/Profesi</label>
+                        <input type="text" class="form-control" placeholder="Contoh: Mahasiswa Psikologi">
+                    </div>
+                    <div class="form-group">
+                        <label>Foto</label>
+                        <div class="image-upload" id="testimonial-image-upload">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Klik untuk upload foto</p>
+                            <img id="testimonial-image-preview" class="image-preview" src="" alt="Preview">
+                        </div>
+                        <input type="file" id="testimonial-image-input" style="display: none;" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label>Testimoni</label>
+                        <textarea class="form-control" rows="4" placeholder="Tulis testimoni di sini"></textarea>
+                    </div>
+                    <button class="btn btn-success">
+                        <i class="fas fa-save"></i> Simpan Testimoni
+                    </button>
+
+                    <h4 style="margin-top: 30px; margin-bottom: 15px;">Daftar Testimoni</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nama</th>
+                                <th>Posisi</th>
+                                <th>Testimoni</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Sari Wijaya</td>
+                                <td>Mahasiswa Psikologi</td>
+                                <td>Workshop dari Tim Ceri sangat membantu saya memahami dasar-dasar AI...</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Budi Santoso</td>
+                                <td>Guru SMA</td>
+                                <td>Sebagai guru, saya sangat menghargai inisiatif Tim Ceri dalam meningkatkan literasi AI...</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Struktur Tim -->
+            <div class="content-section" id="struktur-tim">
+                <div class="section-header">
+                    <h3>Edit Struktur Tim</h3>
+                    <button class="btn btn-primary" id="add-member-btn">
+                        <i class="fas fa-plus"></i> Tambah Anggota
+                    </button>
+                </div>
+                <div class="section-content">
+                    <div class="team-member-form">
+                        <div class="form-group">
+                            <label>Nama Lengkap</label>
+                            <input type="text" class="form-control" placeholder="Contoh: Andi Pratama">
+                        </div>
+                        <div class="form-group">
+                            <label>Posisi</label>
+                            <input type="text" class="form-control" placeholder="Contoh: Ketua Tim">
+                        </div>
+                        <div class="form-group">
+                            <label>Deskripsi</label>
+                            <input type="text" class="form-control" placeholder="Contoh: Mahasiswa Teknik Informatika, Universitas Indonesia">
+                        </div>
+                        <div class="form-group">
+                            <label>Foto</label>
+                            <div class="image-upload" id="member-image-upload">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Klik untuk upload foto</p>
+                                <img id="member-image-preview" class="image-preview" src="" alt="Preview">
+                            </div>
+                            <input type="file" id="member-image-input" style="display: none;" accept="image/*">
+                        </div>
+                    </div>
+                    <button class="btn btn-success">
+                        <i class="fas fa-save"></i> Simpan Anggota
+                    </button>
+
+                    <h4 style="margin-top: 30px; margin-bottom: 15px;">Daftar Anggota Tim</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nama</th>
+                                <th>Posisi</th>
+                                <th>Deskripsi</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Andi Pratama</td>
+                                <td>Ketua Tim</td>
+                                <td>Mahasiswa Teknik Informatika, Universitas Indonesia</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Rina Sari</td>
+                                <td>Koordinator Edukasi</td>
+                                <td>Mahasiswa Ilmu Komputer, Institut Teknologi Bandung</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Kontak -->
+            <div class="content-section" id="kontak">
+                <div class="section-header">
+                    <h3>Edit Informasi Kontak</h3>
+                </div>
+                <div class="section-content">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" class="form-control" data-field="email" value="timceri@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Telepon</label>
+                                <input type="text" class="form-control" data-field="phone" value="+62 812 3456 7890">
+                            </div>
+                            <div class="form-group">
+                                <label>Lokasi</label>
+                                <input type="text" class="form-control" data-field="location" value="Depok, Jawa Barat, Indonesia">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label>Instagram</label>
+                                <input type="text" class="form-control" data-field="instagram" value="@timceri">
+                            </div>
+                            <div class="form-group">
+                                <label>Twitter</label>
+                                <input type="text" class="form-control" data-field="twitter" value="@tim_ceri">
+                            </div>
+                            <div class="form-group">
+                                <label>LinkedIn</label>
+                                <input type="text" class="form-control" data-field="linkedin" value="Tim Ceri">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-success" onclick="saveContent('kontak')">
+                        <i class="fas fa-save"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Edukasi AI -->
+            <div class="content-section" id="edukasi">
+                <div class="section-header">
+                    <h3>Edit Materi Edukasi AI</h3>
+                    <button class="btn btn-primary" id="add-material-btn">
+                        <i class="fas fa-plus"></i> Tambah Materi
+                    </button>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Judul Materi</label>
+                        <input type="text" class="form-control" placeholder="Contoh: Pengenalan AI">
+                    </div>
+                    <div class="form-group">
+                        <label>Deskripsi Materi</label>
+                        <textarea class="form-control" rows="6" placeholder="Tulis konten materi edukasi di sini"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Icon (Font Awesome)</label>
+                        <input type="text" class="form-control" placeholder="Contoh: fas fa-robot">
+                    </div>
+                    <button class="btn btn-success">
+                        <i class="fas fa-save"></i> Simpan Materi
+                    </button>
+
+                    <h4 style="margin-top: 30px; margin-bottom: 15px;">Daftar Materi Edukasi</h4>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Judul</th>
+                                <th>Deskripsi</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Apa Itu AI?</td>
+                                <td>Kecerdasan Buatan (AI) adalah simulasi proses kecerdasan manusia oleh mesin...</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Machine Learning</td>
+                                <td>Machine Learning adalah cabang AI yang memungkinkan komputer belajar dari data...</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Aksi Nyata -->
+            <div class="content-section" id="aksi">
+                <div class="section-header">
+                    <h3>Edit Aksi Nyata</h3>
+                </div>
+                <div class="section-content">
+                    <div class="form-group">
+                        <label>Judul Challenge</label>
+                        <input type="text" class="form-control" value="AI Challenge 2023">
+                    </div>
+                    <div class="form-group">
+                        <label>Subjudul</label>
+                        <input type="text" class="form-control" value="Solusi AI untuk Pendidikan Indonesia">
+                    </div>
+                    <div class="form-group">
+                        <label>Poster Challenge</label>
+                        <div class="image-upload" id="challenge-poster-upload">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <p>Klik untuk upload poster challenge</p>
+                            <img id="challenge-poster-preview" class="image-preview" src="" alt="Preview">
+                        </div>
+                        <input type="file" id="challenge-poster-input" style="display: none;" accept="image/*">
+                    </div>
+                    <div class="form-group">
+                        <label>Deskripsi Challenge</label>
+                        <textarea class="form-control" rows="4">AI Challenge 2023 adalah kompetisi tahunan yang diselenggarakan oleh Tim Ceri untuk mendorong inovasi dalam pemanfaatan kecerdasan buatan (AI) untuk memecahkan masalah pendidikan di Indonesia.</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Ketentuan Challenge (satu per baris)</label>
+                        <textarea class="form-control" rows="6">Peserta dapat berpartisipasi secara individu atau tim (maksimal 3 orang)
+Kategori peserta: Pelajar SMA/Sederajat, Mahasiswa, dan Umum (max 30 tahun)
+Solusi harus menggunakan teknologi AI/ML sebagai komponen utama
+Karya harus orisinal dan belum pernah dipublikasikan sebelumnya
+Peserta harus mengirimkan proposal dan prototipe (jika ada)
+Batas akhir pengumpulan: 30 November 2023 pukul 23.59 WIB
+Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
+                    </div>
+                    <button class="btn btn-success">
+                        <i class="fas fa-save"></i> Simpan Perubahan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Komentar -->
+            <div class="content-section" id="komentar">
+                <div class="section-header">
+                    <h3>Kelola Komentar</h3>
+                </div>
+                <div class="section-content">
+                    <h4>Komentar Baru</h4>
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-author">Ahmad Fauzi</div>
+                            <div class="comment-date">15 Oktober 2023</div>
+                        </div>
+                        <p>Kegiatan workshop AI untuk pelajar sangat bermanfaat. Anak saya menjadi lebih tertarik dengan teknologi setelah mengikutinya.</p>
+                        <div class="comment-actions">
+                            <button class="btn btn-primary btn-sm">
+                                <i class="fas fa-reply"></i> Balas
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-author">Diana Putri</div>
+                            <div class="comment-date">12 Oktober 2023</div>
+                        </div>
+                        <p>Materi yang disampaikan mudah dipahami. Sangat membantu saya yang baru mulai belajar tentang AI. Kapan ada workshop lagi?</p>
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label>Balas Komentar</label>
+                            <textarea class="form-control" rows="3" placeholder="Tulis balasan untuk Diana Putri"></textarea>
+                        </div>
+                        <div class="comment-actions">
+                            <button class="btn btn-success btn-sm">
+                                <i class="fas fa-paper-plane"></i> Kirim Balasan
+                            </button>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-top: 30px;">Komentar yang Disetujui</h4>
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div class="comment-author">Rizky Pratama</div>
+                            <div class="comment-date">8 Oktober 2023</div>
+                        </div>
+                        <p>Terima kasih Tim Ceri! Berkat seminar yang kemarin, saya jadi lebih paham tentang peluang karir di bidang AI.</p>
+                        <div class="comment-actions">
+                            <button class="btn btn-warning btn-sm">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Hapus
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const commentsRef = db.ref('comments');
+        
+        // ==================== NAVIGATION ====================
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all menu items
+                document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+                
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Hide all content sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Show target section
+                const targetId = this.getAttribute('data-target');
+                document.getElementById(targetId).classList.add('active');
+                
+                // Update page title
+                const pageTitle = document.getElementById('page-title');
+                pageTitle.textContent = this.querySelector('span').textContent;
+                
+                // Load comments if komentar section is opened
+                if (targetId === 'komentar') {
+                    loadCommentsAdmin();
+                }
+            });
+        });
+        
+        // ==================== COMMENT MANAGEMENT ====================
+        let currentReplyCommentId = null;
+        let replyForms = {};
+        
+        function loadCommentsAdmin() {
+            const sectionContent = document.querySelector('#komentar .section-content');
+            sectionContent.innerHTML = '<p style="text-align: center; color: #999;">Memuat komentar...</p>';
+            
+            commentsRef.orderByChild('timestamp').on('value', (snapshot) => {
+                sectionContent.innerHTML = '';
+                const comments = [];
+                
+                snapshot.forEach((childSnapshot) => {
+                    const comment = {
+                        id: childSnapshot.key,
+                        ...childSnapshot.val()
+                    };
+                    comments.push(comment);
+                });
+                
+                if (comments.length === 0) {
+                    sectionContent.innerHTML = '<p style="text-align: center; color: #999;">Belum ada komentar.</p>';
+                    return;
+                }
+                
+                // Sort by timestamp descending (newest first)
+                comments.sort((a, b) => b.timestamp - a.timestamp);
+                
+                // Create sections for comments
+                const newCommentsDiv = document.createElement('div');
+                newCommentsDiv.innerHTML = '<h4 style="margin-bottom: 20px;">Semua Komentar</h4>';
+                
+                comments.forEach(comment => {
+                    const commentItem = createAdminCommentElement(comment);
+                    newCommentsDiv.appendChild(commentItem);
+                });
+                
+                sectionContent.appendChild(newCommentsDiv);
+            }, (error) => {
+                console.error('Error loading comments:', error);
+                sectionContent.innerHTML = '<p style="text-align: center; color: #e74c3c;">Gagal memuat komentar. Silakan refresh halaman.</p>';
+            });
+        }
+        
+        function createAdminCommentElement(comment) {
+            const commentDiv = document.createElement('div');
+            commentDiv.className = 'comment-item';
+            commentDiv.style.animation = 'fadeIn 0.5s ease';
+            
+            // Check if there are replies
+            const hasReplies = comment.replies && Object.keys(comment.replies).length > 0;
+            const replyCount = hasReplies ? Object.keys(comment.replies).length : 0;
+            
+            commentDiv.innerHTML = `
+                <div class="comment-header">
+                    <div>
+                        <div class="comment-author">${escapeHtml(comment.name)}</div>
+                        ${hasReplies ? `<small style="color: #3498db;"><i class="fas fa-reply"></i> ${replyCount} balasan</small>` : ''}
+                    </div>
+                    <div class="comment-date">${comment.date}</div>
+                </div>
+                <p style="margin-bottom: 15px;">${escapeHtml(comment.text)}</p>
+                
+                <!-- Replies Container -->
+                <div id="replies-${comment.id}" style="margin-left: 20px; border-left: 3px solid #3498db; padding-left: 15px; margin-bottom: 15px;">
+                    ${hasReplies ? generateRepliesHTML(comment.replies) : '<p style="color: #999; font-size: 0.9rem;">Belum ada balasan</p>'}
+                </div>
+                
+                <!-- Reply Form Container -->
+                <div id="reply-form-${comment.id}" style="display: none; margin-top: 15px; background: #f8f9fa; padding: 15px; border-radius: 5px;">
+                    <label style="font-weight: 500; margin-bottom: 8px; display: block;">Balas Komentar dari ${escapeHtml(comment.name)}</label>
+                    <textarea class="form-control" id="reply-text-${comment.id}" rows="3" placeholder="Tulis balasan Anda di sini..."></textarea>
+                    <div style="margin-top: 10px; display: flex; gap: 10px;">
+                        <button class="btn btn-success btn-sm" onclick="sendReply('${comment.id}')">
+                            <i class="fas fa-paper-plane"></i> Kirim Balasan
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="cancelReply('${comment.id}')">
+                            <i class="fas fa-times"></i> Batal
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="comment-actions">
+                    <button class="btn btn-primary btn-sm" onclick="toggleReplyForm('${comment.id}')">
+                        <i class="fas fa-reply"></i> Balas
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteCommentAdmin('${comment.id}')">
+                        <i class="fas fa-trash"></i> Hapus
+                    </button>
+                </div>
+            `;
+            
+            return commentDiv;
+        }
+        
+        function generateRepliesHTML(replies) {
+            if (!replies) return '';
+            
+            let html = '';
+            Object.entries(replies).forEach(([replyId, reply]) => {
+                html += `
+                    <div style="background: white; padding: 12px; border-radius: 5px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <strong style="color: #27ae60;">
+                                <i class="fas fa-user-shield"></i> Admin Ceri
+                            </strong>
+                            <small style="color: #999;">${reply.date}</small>
+                        </div>
+                        <p style="margin: 0; color: #555;">${escapeHtml(reply.text)}</p>
+                        <button class="btn btn-danger btn-sm" onclick="deleteReply('${reply.commentId}', '${replyId}')" style="margin-top: 8px;">
+                            <i class="fas fa-trash"></i> Hapus Balasan
+                        </button>
+                    </div>
+                `;
+            });
+            
+            return html;
+        }
+        
+        function toggleReplyForm(commentId) {
+            const replyForm = document.getElementById(`reply-form-${commentId}`);
+            
+            // Close all other reply forms
+            document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
+                if (form.id !== `reply-form-${commentId}`) {
+                    form.style.display = 'none';
+                }
+            });
+            
+            // Toggle current form
+            if (replyForm.style.display === 'none') {
+                replyForm.style.display = 'block';
+                document.getElementById(`reply-text-${commentId}`).focus();
+            } else {
+                replyForm.style.display = 'none';
+            }
+        }
+        
+        function cancelReply(commentId) {
+            const replyForm = document.getElementById(`reply-form-${commentId}`);
+            const replyText = document.getElementById(`reply-text-${commentId}`);
+            
+            replyForm.style.display = 'none';
+            replyText.value = '';
+        }
+        
+        function sendReply(commentId) {
+            const replyText = document.getElementById(`reply-text-${commentId}`).value.trim();
+            
+            if (replyText === '') {
+                showNotification('Mohon isi balasan Anda!', 'error');
+                return;
+            }
+            
+            // Show loading state
+            const sendBtn = event.target.closest('button');
+            const originalText = sendBtn.innerHTML;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mengirim...';
+            
+            // Create reply object
+            const reply = {
+                text: replyText,
+                date: formatDate(),
+                timestamp: Date.now(),
+                commentId: commentId,
+                adminName: 'Admin Ceri'
+            };
+            
+            // Save reply to Firebase
+            commentsRef.child(commentId).child('replies').push(reply)
+                .then(() => {
+                    showNotification('Balasan berhasil dikirim!', 'success');
+                    
+                    // Clear form
+                    document.getElementById(`reply-text-${commentId}`).value = '';
+                    document.getElementById(`reply-form-${commentId}`).style.display = 'none';
+                    
+                    // Reset button
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = originalText;
+                    
+                    // Reload comments to show the new reply
+                    loadCommentsAdmin();
+                })
+                .catch((error) => {
+                    console.error('Error sending reply:', error);
+                    showNotification('Gagal mengirim balasan. Silakan coba lagi.', 'error');
+                    
+                    // Reset button
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = originalText;
+                });
+        }
+        
+        function deleteReply(commentId, replyId) {
+            if (!confirm('Apakah Anda yakin ingin menghapus balasan ini?')) {
+                return;
+            }
+            
+            commentsRef.child(commentId).child('replies').child(replyId).remove()
+                .then(() => {
+                    showNotification('Balasan berhasil dihapus!', 'success');
+                })
+                .catch((error) => {
+                    console.error('Error deleting reply:', error);
+                    showNotification('Gagal menghapus balasan. Silakan coba lagi.', 'error');
+                });
+        }
+        
+        function deleteCommentAdmin(commentId) {
+            if (!confirm('Apakah Anda yakin ingin menghapus komentar ini beserta semua balasannya?')) {
+                return;
+            }
+            
+            commentsRef.child(commentId).remove()
+                .then(() => {
+                    showNotification('Komentar berhasil dihapus!', 'success');
+                })
+                .catch((error) => {
+                    console.error('Error deleting comment:', error);
+                    showNotification('Gagal menghapus komentar. Silakan coba lagi.', 'error');
+                });
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function formatDate() {
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 
+                            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+            const now = new Date();
+            return `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+        }
+        
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 15px 25px;
+                background-color: ${type === 'success' ? '#27ae60' : '#e74c3c'};
+                color: white;
+                border-radius: 5px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                z-index: 9999;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+        
+        // ==================== IMAGE UPLOAD ====================
+        function setupImageUpload(uploadElementId, inputElementId, previewElementId) {
+            const uploadElement = document.getElementById(uploadElementId);
+            const inputElement = document.getElementById(inputElementId);
+            const previewElement = document.getElementById(previewElementId);
+        
+            if (!uploadElement || !inputElement || !previewElement) return;
+        
+            uploadElement.addEventListener('click', () => {
+                inputElement.click();
+            });
+        
+            inputElement.addEventListener('change', function() {
+                const file = this.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewElement.src = e.target.result;
+                        previewElement.style.display = 'block';
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+        
+        // Setup image uploads
+        setupImageUpload('team-image-upload', 'team-image-input', 'team-image-preview');
+        setupImageUpload('moment-image-upload', 'moment-image-input', 'moment-image-preview');
+        setupImageUpload('testimonial-image-upload', 'testimonial-image-input', 'testimonial-image-preview');
+        setupImageUpload('member-image-upload', 'member-image-input', 'member-image-preview');
+        setupImageUpload('challenge-poster-upload', 'challenge-poster-input', 'challenge-poster-preview');
+
+        // ==================== CONTENT MANAGEMENT ====================
+        const contentRef = db.ref('content');
+
+        // Function untuk load content dari Firebase
+        function loadContent(section) {
+            contentRef.child(section).once('value')
+                .then((snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        populateForm(section, data);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error loading content:', error);
+                    showNotification('Gagal memuat konten. Silakan coba lagi.', 'error');
+                });
+        }
+
+        // Function untuk populate form dengan data dari Firebase
+        function populateForm(section, data) {
+            const sectionElement = document.getElementById(section);
+            if (!sectionElement) return;
+            
+            const inputs = sectionElement.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                const fieldName = input.getAttribute('data-field');
+                if (fieldName && data[fieldName]) {
+                    input.value = data[fieldName];
+                }
+            });
+        }
+
+        // Function untuk save content ke Firebase
+        function saveContent(section) {
+            const sectionElement = document.getElementById(section);
+            if (!sectionElement) return;
+            
+            const data = {};
+            const inputs = sectionElement.querySelectorAll('input, textarea');
+            
+            inputs.forEach(input => {
+                const fieldName = input.getAttribute('data-field');
+                if (fieldName) {
+                    data[fieldName] = input.value;
+                }
+            });
+            
+            // Show loading
+            const saveBtn = event.target;
+            const originalText = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+            
+            // Save to Firebase
+            contentRef.child(section).set(data)
+                .then(() => {
+                    showNotification('Perubahan berhasil disimpan!', 'success');
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalText;
+                })
+                .catch((error) => {
+                    console.error('Error saving content:', error);
+                    showNotification('Gagal menyimpan perubahan. Silakan coba lagi.', 'error');
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalText;
+                });
+        }
+
+        // Load content saat section dibuka
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                if (['latar-belakang', 'tentang-tim', 'tujuan-misi', 'kontak'].includes(targetId)) {
+                    loadContent(targetId);
+                }
+            });
+        });
+
+        // ==================== MOMEN TERBAIK MANAGEMENT ====================
+        const momentsRef = db.ref('moments');
+
+        function saveMoment() {
+            const title = document.querySelector('#momen-terbaik input[placeholder*="Judul"]').value.trim();
+            const description = document.querySelector('#momen-terbaik textarea').value.trim();
+            const imagePreview = document.getElementById('moment-image-preview');
+            
+            if (!title || !description) {
+                showNotification('Mohon isi judul dan deskripsi!', 'error');
+                return;
+            }
+            
+            const moment = {
+                title: title,
+                description: description,
+                image: imagePreview.src || 'https://via.placeholder.com/400x300',
+                timestamp: Date.now()
+            };
+            
+            momentsRef.push(moment)
+                .then(() => {
+                    showNotification('Momen berhasil ditambahkan!', 'success');
+                    document.querySelector('#momen-terbaik input[placeholder*="Judul"]').value = '';
+                    document.querySelector('#momen-terbaik textarea').value = '';
+                    imagePreview.style.display = 'none';
+                    loadMoments();
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                    showNotification('Gagal menambahkan momen!', 'error');
+                });
+        }
+
+        function loadMoments() {
+            momentsRef.once('value')
+                .then((snapshot) => {
+                    const tbody = document.querySelector('#momen-terbaik .data-table tbody');
+                    tbody.innerHTML = '';
+                    
+                    snapshot.forEach((child) => {
+                        const moment = child.val();
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td><img src="${moment.image}" alt="${moment.title}" style="width: 60px; height: 40px; object-fit: cover;"></td>
+                            <td>${moment.title}</td>
+                            <td>${moment.description}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="deleteMoment('${child.key}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                });
+        }
+
+        function deleteMoment(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus momen ini?')) {
+                momentsRef.child(id).remove()
+                    .then(() => {
+                        showNotification('Momen berhasil dihapus!', 'success');
+                        loadMoments();
+                    })
+                    .catch((error) => {
+                        showNotification('Gagal menghapus momen!', 'error');
+                    });
+            }
+        }
+
+        // ==================== TESTIMONI MANAGEMENT ====================
+        const testimonialsRef = db.ref('testimonials');
+
+        function saveTestimonial() {
+            const name = document.querySelector('#testimoni input[placeholder*="Nama"]').value.trim();
+            const position = document.querySelector('#testimoni input[placeholder*="Posisi"]').value.trim();
+            const text = document.querySelector('#testimoni textarea').value.trim();
+            const imagePreview = document.getElementById('testimonial-image-preview');
+            
+            if (!name || !position || !text) {
+                showNotification('Mohon isi semua field!', 'error');
+                return;
+            }
+            
+            const testimonial = {
+                name: name,
+                position: position,
+                text: text,
+                image: imagePreview.src || 'https://randomuser.me/api/portraits/men/1.jpg',
+                timestamp: Date.now()
+            };
+            
+            testimonialsRef.push(testimonial)
+                .then(() => {
+                    showNotification('Testimoni berhasil ditambahkan!', 'success');
+                    document.querySelector('#testimoni input[placeholder*="Nama"]').value = '';
+                    document.querySelector('#testimoni input[placeholder*="Posisi"]').value = '';
+                    document.querySelector('#testimoni textarea').value = '';
+                    imagePreview.style.display = 'none';
+                    loadTestimonials();
+                })
+                .catch((error) => {
+                    showNotification('Gagal menambahkan testimoni!', 'error');
+                });
+        }
+
+        function loadTestimonials() {
+            testimonialsRef.once('value')
+                .then((snapshot) => {
+                    const tbody = document.querySelector('#testimoni .data-table tbody');
+                    tbody.innerHTML = '';
+                    
+                    snapshot.forEach((child) => {
+                        const testimonial = child.val();
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${testimonial.name}</td>
+                            <td>${testimonial.position}</td>
+                            <td>${testimonial.text.substring(0, 50)}...</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="deleteTestimonial('${child.key}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                });
+        }
+
+        function deleteTestimonial(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus testimoni ini?')) {
+                testimonialsRef.child(id).remove()
+                    .then(() => {
+                        showNotification('Testimoni berhasil dihapus!', 'success');
+                        loadTestimonials();
+                    })
+                    .catch((error) => {
+                        showNotification('Gagal menghapus testimoni!', 'error');
+                    });
+            }
+        }
+
+        // ==================== STRUKTUR TIM MANAGEMENT ====================
+        const teamRef = db.ref('team');
+
+        function saveTeamMember() {
+            const name = document.querySelector('#struktur-tim input[placeholder*="Nama"]').value.trim();
+            const position = document.querySelector('#struktur-tim input[placeholder*="Posisi"]').value.trim();
+            const description = document.querySelector('#struktur-tim input[placeholder*="Deskripsi"]').value.trim();
+            const imagePreview = document.getElementById('member-image-preview');
+            
+            if (!name || !position || !description) {
+                showNotification('Mohon isi semua field!', 'error');
+                return;
+            }
+            
+            const member = {
+                name: name,
+                position: position,
+                description: description,
+                image: imagePreview.src || 'https://randomuser.me/api/portraits/men/1.jpg',
+                timestamp: Date.now()
+            };
+            
+            teamRef.push(member)
+                .then(() => {
+                    showNotification('Anggota tim berhasil ditambahkan!', 'success');
+                    document.querySelector('#struktur-tim input[placeholder*="Nama"]').value = '';
+                    document.querySelector('#struktur-tim input[placeholder*="Posisi"]').value = '';
+                    document.querySelector('#struktur-tim input[placeholder*="Deskripsi"]').value = '';
+                    imagePreview.style.display = 'none';
+                    loadTeamMembers();
+                })
+                .catch((error) => {
+                    showNotification('Gagal menambahkan anggota tim!', 'error');
+                });
+        }
+
+        function loadTeamMembers() {
+            teamRef.once('value')
+                .then((snapshot) => {
+                    const tbody = document.querySelector('#struktur-tim .data-table tbody');
+                    tbody.innerHTML = '';
+                    
+                    snapshot.forEach((child) => {
+                        const member = child.val();
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${member.name}</td>
+                            <td>${member.position}</td>
+                            <td>${member.description}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="deleteTeamMember('${child.key}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                });
+        }
+
+        function deleteTeamMember(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus anggota ini?')) {
+                teamRef.child(id).remove()
+                    .then(() => {
+                        showNotification('Anggota tim berhasil dihapus!', 'success');
+                        loadTeamMembers();
+                    })
+                    .catch((error) => {
+                        showNotification('Gagal menghapus anggota tim!', 'error');
+                    });
+            }
+        }
+
+        // ==================== EDUKASI AI MANAGEMENT ====================
+        const educationRef = db.ref('education');
+
+        function saveEducation() {
+            const title = document.querySelector('#edukasi input[placeholder*="Judul"]').value.trim();
+            const description = document.querySelector('#edukasi textarea').value.trim();
+            const icon = document.querySelector('#edukasi input[placeholder*="Icon"]').value.trim();
+            
+            if (!title || !description || !icon) {
+                showNotification('Mohon isi semua field!', 'error');
+                return;
+            }
+            
+            const education = {
+                title: title,
+                description: description,
+                icon: icon,
+                timestamp: Date.now()
+            };
+            
+            educationRef.push(education)
+                .then(() => {
+                    showNotification('Materi edukasi berhasil ditambahkan!', 'success');
+                    document.querySelector('#edukasi input[placeholder*="Judul"]').value = '';
+                    document.querySelector('#edukasi textarea').value = '';
+                    document.querySelector('#edukasi input[placeholder*="Icon"]').value = '';
+                    loadEducation();
+                })
+                .catch((error) => {
+                    showNotification('Gagal menambahkan materi edukasi!', 'error');
+                });
+        }
+
+        function loadEducation() {
+            educationRef.once('value')
+                .then((snapshot) => {
+                    const tbody = document.querySelector('#edukasi .data-table tbody');
+                    tbody.innerHTML = '';
+                    
+                    snapshot.forEach((child) => {
+                        const education = child.val();
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${education.title}</td>
+                            <td>${education.description.substring(0, 50)}...</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" onclick="deleteEducation('${child.key}')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                });
+        }
+
+        function deleteEducation(id) {
+            if (confirm('Apakah Anda yakin ingin menghapus materi ini?')) {
+                educationRef.child(id).remove()
+                    .then(() => {
+                        showNotification('Materi edukasi berhasil dihapus!', 'success');
+                        loadEducation();
+                    })
+                    .catch((error) => {
+                        showNotification('Gagal menghapus materi edukasi!', 'error');
+                    });
+            }
+        }
+
+        // ==================== UPDATE BUTTON ONCLICK ====================
+        // Update tombol save untuk setiap section
+        document.querySelector('#momen-terbaik .btn-success').onclick = saveMoment;
+        document.querySelector('#testimoni .btn-success').onclick = saveTestimonial;
+        document.querySelector('#struktur-tim .btn-success').onclick = saveTeamMember;
+        document.querySelector('#edukasi .btn-success').onclick = saveEducation;
+
+        // Load data saat menu item diklik
+        document.querySelectorAll('.menu-item').forEach(item => {
+            const originalClickHandler = item.onclick;
+            item.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                
+                // Load data untuk setiap section
+                if (targetId === 'momen-terbaik') loadMoments();
+                if (targetId === 'testimoni') loadTestimonials();
+                if (targetId === 'struktur-tim') loadTeamMembers();
+                if (targetId === 'edukasi') loadEducation();
+            });
+        });
+        
+        // ==================== OTHER FUNCTIONALITIES ====================
+        // Logout functionality
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            if (confirm('Apakah Anda yakin ingin logout?')) {
+                showNotification('Anda telah logout dari admin panel.', 'success');
+                // Redirect to login page
+                // window.location.href = 'login.html';
+            }
+        });
+        
+        // Add buttons functionality
+        const addMomentBtn = document.getElementById('add-moment-btn');
+        if (addMomentBtn) {
+            addMomentBtn.addEventListener('click', function() {
+                showNotification('Form untuk menambah momen baru telah disiapkan.', 'success');
+            });
+        }
+        
+        const addTestimonialBtn = document.getElementById('add-testimonial-btn');
+        if (addTestimonialBtn) {
+            addTestimonialBtn.addEventListener('click', function() {
+                showNotification('Form untuk menambah testimoni baru telah disiapkan.', 'success');
+            });
+        }
+        
+        const addMemberBtn = document.getElementById('add-member-btn');
+        if (addMemberBtn) {
+            addMemberBtn.addEventListener('click', function() {
+                showNotification('Form untuk menambah anggota tim baru telah disiapkan.', 'success');
+            });
+        }
+        
+        const addMaterialBtn = document.getElementById('add-material-btn');
+        if (addMaterialBtn) {
+            addMaterialBtn.addEventListener('click', function() {
+                showNotification('Form untuk menambah materi edukasi baru telah disiapkan.', 'success');
+            });
+        }
+        
+        // ==================== ANIMATIONS ====================
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Load comments on page load if on komentar section
+        if (document.querySelector('.menu-item[data-target="komentar"]').classList.contains('active')) {
+            loadCommentsAdmin();
+        }
+        </script>
+</body>
+</html>
