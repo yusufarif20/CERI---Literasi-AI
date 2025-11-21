@@ -12,12 +12,12 @@
     <style>
         /* Reset dan Variabel */
         :root {
-            --primary: #e74c3c;
+            --primary: #2d1b58;
             --secondary: #2c3e50;
             --accent: #3498db;
             --success: #27ae60;
             --warning: #f39c12;
-            --danger: #e74c3c;
+            --danger: #2d1b58;
             --light: #f8f9fa;
             --dark: #343a40;
             --sidebar-width: 250px;
@@ -27,12 +27,13 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Times New Roman', Times, serif;
         }
 
         body {
             background-color: #f5f6fa;
             color: #333;
+            font-family: 'Times New Roman', Times, serif;
         }
 
         /* Layout */
@@ -582,15 +583,15 @@
                     </div>
                     <div class="form-group">
                         <label>Judul Kegiatan</label>
-                        <input type="text" class="form-control" placeholder="Contoh: Workshop AI Dasar">
+                        <input type="text" id="moment-title" class="form-control" placeholder="Contoh: Workshop AI Dasar">
                     </div>
                     <div class="form-group">
                         <label>Deskripsi Kegiatan</label>
-                        <textarea class="form-control" rows="3" placeholder="Deskripsi singkat tentang kegiatan"></textarea>
+                        <textarea id="moment-description" class="form-control" rows="3" placeholder="Deskripsi singkat tentang kegiatan"></textarea>
                     </div>
-                    <button class="btn btn-success">
+                    <button class="btn btn-success" id="save-moment-btn">
                         <i class="fas fa-save"></i> Simpan Momen
-                    </button>
+                    </button>                    
 
                     <h4 style="margin-top: 30px; margin-bottom: 15px;">Daftar Momen</h4>
                     <table class="data-table">
@@ -645,11 +646,11 @@
                 <div class="section-content">
                     <div class="form-group">
                         <label>Nama Pemberi Testimoni</label>
-                        <input type="text" class="form-control" placeholder="Contoh: Sari Wijaya">
+                        <input type="text" id="testimonial-name" class="form-control" placeholder="Contoh: Sari Wijaya">
                     </div>
                     <div class="form-group">
                         <label>Posisi/Profesi</label>
-                        <input type="text" class="form-control" placeholder="Contoh: Mahasiswa Psikologi">
+                        <input type="text" id="testimonial-position" class="form-control" placeholder="Contoh: Mahasiswa Psikologi">
                     </div>
                     <div class="form-group">
                         <label>Foto</label>
@@ -662,9 +663,9 @@
                     </div>
                     <div class="form-group">
                         <label>Testimoni</label>
-                        <textarea class="form-control" rows="4" placeholder="Tulis testimoni di sini"></textarea>
+                        <textarea id="testimonial-text" class="form-control" rows="4" placeholder="Tulis testimoni di sini"></textarea>
                     </div>
-                    <button class="btn btn-success">
+                    <button class="btn btn-success" onclick="saveTestimonial()">
                         <i class="fas fa-save"></i> Simpan Testimoni
                     </button>
 
@@ -679,32 +680,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Sari Wijaya</td>
-                                <td>Mahasiswa Psikologi</td>
-                                <td>Workshop dari Tim Ceri sangat membantu saya memahami dasar-dasar AI...</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Budi Santoso</td>
-                                <td>Guru SMA</td>
-                                <td>Sebagai guru, saya sangat menghargai inisiatif Tim Ceri dalam meningkatkan literasi AI...</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                            <!-- Data akan dimuat dari Firebase -->
                         </tbody>
                     </table>
                 </div>
@@ -722,15 +698,15 @@
                     <div class="team-member-form">
                         <div class="form-group">
                             <label>Nama Lengkap</label>
-                            <input type="text" class="form-control" placeholder="Contoh: Andi Pratama">
+                            <input type="text" id="member-name" class="form-control" placeholder="Contoh: Andi Pratama">
                         </div>
                         <div class="form-group">
                             <label>Posisi</label>
-                            <input type="text" class="form-control" placeholder="Contoh: Ketua Tim">
+                            <input type="text" id="member-position" class="form-control" placeholder="Contoh: Ketua Tim">
                         </div>
                         <div class="form-group">
                             <label>Deskripsi</label>
-                            <input type="text" class="form-control" placeholder="Contoh: Mahasiswa Teknik Informatika, Universitas Indonesia">
+                            <input type="text" id="member-description" class="form-control" placeholder="Contoh: Mahasiswa Teknik Informatika, Universitas Indonesia">
                         </div>
                         <div class="form-group">
                             <label>Foto</label>
@@ -742,7 +718,7 @@
                             <input type="file" id="member-image-input" style="display: none;" accept="image/*">
                         </div>
                     </div>
-                    <button class="btn btn-success">
+                    <button class="btn btn-success" onclick="saveTeamMember()">
                         <i class="fas fa-save"></i> Simpan Anggota
                     </button>
 
@@ -757,32 +733,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Andi Pratama</td>
-                                <td>Ketua Tim</td>
-                                <td>Mahasiswa Teknik Informatika, Universitas Indonesia</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Rina Sari</td>
-                                <td>Koordinator Edukasi</td>
-                                <td>Mahasiswa Ilmu Komputer, Institut Teknologi Bandung</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                            <!-- Data will be loaded here -->
                         </tbody>
                     </table>
                 </div>
@@ -841,17 +792,17 @@
                 <div class="section-content">
                     <div class="form-group">
                         <label>Judul Materi</label>
-                        <input type="text" class="form-control" placeholder="Contoh: Pengenalan AI">
+                        <input type="text" id="education-title" class="form-control" placeholder="Contoh: Pengenalan AI">
                     </div>
                     <div class="form-group">
                         <label>Deskripsi Materi</label>
-                        <textarea class="form-control" rows="6" placeholder="Tulis konten materi edukasi di sini"></textarea>
+                        <textarea id="education-description" class="form-control" rows="6" placeholder="Tulis konten materi edukasi di sini"></textarea>
                     </div>
                     <div class="form-group">
                         <label>Icon (Font Awesome)</label>
-                        <input type="text" class="form-control" placeholder="Contoh: fas fa-robot">
+                        <input type="text" id="education-icon" class="form-control" placeholder="Contoh: fas fa-robot">
                     </div>
-                    <button class="btn btn-success">
+                    <button class="btn btn-success" onclick="saveEducation()">
                         <i class="fas fa-save"></i> Simpan Materi
                     </button>
 
@@ -865,30 +816,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>Apa Itu AI?</td>
-                                <td>Kecerdasan Buatan (AI) adalah simulasi proses kecerdasan manusia oleh mesin...</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Machine Learning</td>
-                                <td>Machine Learning adalah cabang AI yang memungkinkan komputer belajar dari data...</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
+                            <!-- Data akan dimuat dari Firebase -->
                         </tbody>
                     </table>
                 </div>
@@ -1406,36 +1334,54 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
         // ==================== MOMEN TERBAIK MANAGEMENT ====================
         const momentsRef = db.ref('moments');
 
-        function saveMoment() {
-            const title = document.querySelector('#momen-terbaik input[placeholder*="Judul"]').value.trim();
-            const description = document.querySelector('#momen-terbaik textarea').value.trim();
-            const imagePreview = document.getElementById('moment-image-preview');
-            
+        async function saveMoment() {
+            const title = document.getElementById("moment-title").value.trim();
+            const description = document.getElementById("moment-description").value.trim();
+            const file = document.getElementById("moment-image-input").files[0];
+
             if (!title || !description) {
                 showNotification('Mohon isi judul dan deskripsi!', 'error');
                 return;
             }
+
+            // ❌ HAPUS BARIS INI - tidak pakai placeholder lagi
+            // let imageUrl = "data:image/svg+xml,%3Csvg...";
+
+            // ✅ GANTI DENGAN INI
+            if (!file) {
+                showNotification('Mohon pilih gambar terlebih dahulu!', 'error');
+                return;
+            }
+
+            showNotification('Sedang mengupload gambar...', 'success');
+            const imageUrl = await uploadToCloudinary(file);
             
+            if (!imageUrl) {
+                showNotification('Upload gambar gagal. Silakan coba lagi.', 'error');
+                return;
+            }
+
             const moment = {
-                title: title,
-                description: description,
-                image: imagePreview.src || 'https://via.placeholder.com/400x300',
+                title,
+                description,
+                image: imageUrl,
                 timestamp: Date.now()
             };
-            
+
             momentsRef.push(moment)
                 .then(() => {
                     showNotification('Momen berhasil ditambahkan!', 'success');
-                    document.querySelector('#momen-terbaik input[placeholder*="Judul"]').value = '';
-                    document.querySelector('#momen-terbaik textarea').value = '';
-                    imagePreview.style.display = 'none';
+                    document.getElementById("moment-title").value = '';
+                    document.getElementById("moment-description").value = '';
+                    document.getElementById("moment-image-preview").style.display = 'none';
+                    document.getElementById("moment-image-input").value = '';
                     loadMoments();
                 })
                 .catch((error) => {
-                    console.error('Error:', error);
+                    console.error(error);
                     showNotification('Gagal menambahkan momen!', 'error');
                 });
-        }
+        }        
 
         function loadMoments() {
             momentsRef.once('value')
@@ -1477,35 +1423,66 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
         // ==================== TESTIMONI MANAGEMENT ====================
         const testimonialsRef = db.ref('testimonials');
 
-        function saveTestimonial() {
-            const name = document.querySelector('#testimoni input[placeholder*="Nama"]').value.trim();
-            const position = document.querySelector('#testimoni input[placeholder*="Posisi"]').value.trim();
-            const text = document.querySelector('#testimoni textarea').value.trim();
+        async function saveTestimonial() {
+            // ✅ Gunakan getElementById sesuai ID di HTML
+            const nameInput = document.getElementById('testimonial-name');
+            const positionInput = document.getElementById('testimonial-position');
+            const textInput = document.getElementById('testimonial-text');
+            const fileInput = document.getElementById('testimonial-image-input');
             const imagePreview = document.getElementById('testimonial-image-preview');
             
+            if (!nameInput || !positionInput || !textInput) {
+                showNotification('Error: Form tidak ditemukan!', 'error');
+                return;
+            }
+            
+            const name = nameInput.value.trim();
+            const position = positionInput.value.trim();
+            const text = textInput.value.trim();
+            const file = fileInput.files[0];
+
             if (!name || !position || !text) {
                 showNotification('Mohon isi semua field!', 'error');
                 return;
             }
-            
+
+            // Default avatar jika tidak upload foto
+            let imageUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&size=200&background=3498db&color=fff';
+
+            // Upload foto jika ada
+            if (file) {
+                showNotification('Sedang mengupload foto...', 'success');
+                const uploaded = await uploadToCloudinary(file);
+                if (uploaded) {
+                    imageUrl = uploaded;
+                } else {
+                    showNotification('Upload foto gagal, menggunakan avatar default', 'warning');
+                }
+            }
+
             const testimonial = {
                 name: name,
                 position: position,
                 text: text,
-                image: imagePreview.src || 'https://randomuser.me/api/portraits/men/1.jpg',
+                image: imageUrl,
                 timestamp: Date.now()
             };
-            
+
             testimonialsRef.push(testimonial)
                 .then(() => {
                     showNotification('Testimoni berhasil ditambahkan!', 'success');
-                    document.querySelector('#testimoni input[placeholder*="Nama"]').value = '';
-                    document.querySelector('#testimoni input[placeholder*="Posisi"]').value = '';
-                    document.querySelector('#testimoni textarea').value = '';
+                    
+                    // Clear form
+                    nameInput.value = '';
+                    positionInput.value = '';
+                    textInput.value = '';
                     imagePreview.style.display = 'none';
+                    fileInput.value = '';
+                    
                     loadTestimonials();
                 })
                 .catch((error) => {
+                    console.error('Error saving testimonial:', error);
                     showNotification('Gagal menambahkan testimoni!', 'error');
                 });
         }
@@ -1516,13 +1493,18 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
                     const tbody = document.querySelector('#testimoni .data-table tbody');
                     tbody.innerHTML = '';
                     
+                    if (!snapshot.exists()) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Belum ada testimoni</td></tr>';
+                        return;
+                    }
+                    
                     snapshot.forEach((child) => {
                         const testimonial = child.val();
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
-                            <td>${testimonial.name}</td>
-                            <td>${testimonial.position}</td>
-                            <td>${testimonial.text.substring(0, 50)}...</td>
+                            <td>${escapeHtml(testimonial.name)}</td>
+                            <td>${escapeHtml(testimonial.position)}</td>
+                            <td>${escapeHtml(testimonial.text.substring(0, 50))}...</td>
                             <td>
                                 <button class="btn btn-danger btn-sm" onclick="deleteTestimonial('${child.key}')">
                                     <i class="fas fa-trash"></i>
@@ -1531,6 +1513,10 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
                         `;
                         tbody.appendChild(tr);
                     });
+                })
+                .catch((error) => {
+                    console.error('Error loading testimonials:', error);
+                    showNotification('Gagal memuat data testimoni!', 'error');
                 });
         }
 
@@ -1542,43 +1528,76 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
                         loadTestimonials();
                     })
                     .catch((error) => {
+                        console.error('Error deleting testimonial:', error);
                         showNotification('Gagal menghapus testimoni!', 'error');
                     });
             }
-        }
+        }        
 
         // ==================== STRUKTUR TIM MANAGEMENT ====================
         const teamRef = db.ref('team');
 
-        function saveTeamMember() {
-            const name = document.querySelector('#struktur-tim input[placeholder*="Nama"]').value.trim();
-            const position = document.querySelector('#struktur-tim input[placeholder*="Posisi"]').value.trim();
-            const description = document.querySelector('#struktur-tim input[placeholder*="Deskripsi"]').value.trim();
+        async function saveTeamMember() {
+            // ✅ Gunakan getElementById yang lebih reliable
+            const nameInput = document.getElementById('member-name');
+            const positionInput = document.getElementById('member-position');
+            const descriptionInput = document.getElementById('member-description');
             const imagePreview = document.getElementById('member-image-preview');
+            const fileInput = document.getElementById('member-image-input');
+            
+            if (!nameInput || !positionInput || !descriptionInput) {
+                showNotification('Error: Form tidak ditemukan!', 'error');
+                console.error('Elements not found:', {nameInput, positionInput, descriptionInput});
+                return;
+            }
+            
+            const name = nameInput.value.trim();
+            const position = positionInput.value.trim();
+            const description = descriptionInput.value.trim();
+            const file = fileInput ? fileInput.files[0] : null;
             
             if (!name || !position || !description) {
                 showNotification('Mohon isi semua field!', 'error');
                 return;
             }
             
+            // Default avatar menggunakan UI Avatars
+            let imageUrl = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&size=200&background=e74c3c&color=fff';
+            
+            // Upload gambar jika ada
+            if (file) {
+                showNotification('Sedang mengupload foto...', 'success');
+                const uploaded = await uploadToCloudinary(file);
+                if (uploaded) {
+                    imageUrl = uploaded;
+                } else {
+                    showNotification('Upload foto gagal, menggunakan avatar default', 'warning');
+                }
+            }
+            
             const member = {
                 name: name,
                 position: position,
                 description: description,
-                image: imagePreview.src || 'https://randomuser.me/api/portraits/men/1.jpg',
+                image: imageUrl,
                 timestamp: Date.now()
             };
             
             teamRef.push(member)
                 .then(() => {
                     showNotification('Anggota tim berhasil ditambahkan!', 'success');
-                    document.querySelector('#struktur-tim input[placeholder*="Nama"]').value = '';
-                    document.querySelector('#struktur-tim input[placeholder*="Posisi"]').value = '';
-                    document.querySelector('#struktur-tim input[placeholder*="Deskripsi"]').value = '';
-                    imagePreview.style.display = 'none';
+                    
+                    // Clear form
+                    nameInput.value = '';
+                    positionInput.value = '';
+                    descriptionInput.value = '';
+                    if (imagePreview) imagePreview.style.display = 'none';
+                    if (fileInput) fileInput.value = '';
+                    
                     loadTeamMembers();
                 })
                 .catch((error) => {
+                    console.error('Error saving team member:', error);
                     showNotification('Gagal menambahkan anggota tim!', 'error');
                 });
         }
@@ -1589,13 +1608,18 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
                     const tbody = document.querySelector('#struktur-tim .data-table tbody');
                     tbody.innerHTML = '';
                     
+                    if (!snapshot.exists()) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999;">Belum ada anggota tim</td></tr>';
+                        return;
+                    }
+                    
                     snapshot.forEach((child) => {
                         const member = child.val();
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
-                            <td>${member.name}</td>
-                            <td>${member.position}</td>
-                            <td>${member.description}</td>
+                            <td>${escapeHtml(member.name)}</td>
+                            <td>${escapeHtml(member.position)}</td>
+                            <td>${escapeHtml(member.description)}</td>
                             <td>
                                 <button class="btn btn-danger btn-sm" onclick="deleteTeamMember('${child.key}')">
                                     <i class="fas fa-trash"></i>
@@ -1604,6 +1628,10 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
                         `;
                         tbody.appendChild(tr);
                     });
+                })
+                .catch((error) => {
+                    console.error('Error loading team members:', error);
+                    showNotification('Gagal memuat data anggota tim!', 'error');
                 });
         }
 
@@ -1615,18 +1643,36 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
                         loadTeamMembers();
                     })
                     .catch((error) => {
+                        console.error('Error deleting team member:', error);
                         showNotification('Gagal menghapus anggota tim!', 'error');
                     });
             }
         }
 
+
         // ==================== EDUKASI AI MANAGEMENT ====================
         const educationRef = db.ref('education');
 
         function saveEducation() {
-            const title = document.querySelector('#edukasi input[placeholder*="Judul"]').value.trim();
-            const description = document.querySelector('#edukasi textarea').value.trim();
-            const icon = document.querySelector('#edukasi input[placeholder*="Icon"]').value.trim();
+            // ✅ Gunakan getElementById
+            const titleInput = document.getElementById('education-title');
+            const descriptionInput = document.getElementById('education-description');
+            const iconInput = document.getElementById('education-icon');
+            
+            // Debug log
+            console.log('Title input:', titleInput);
+            console.log('Description input:', descriptionInput);
+            console.log('Icon input:', iconInput);
+            
+            if (!titleInput || !descriptionInput || !iconInput) {
+                showNotification('Error: Form tidak ditemukan!', 'error');
+                console.error('Elements not found:', {titleInput, descriptionInput, iconInput});
+                return;
+            }
+            
+            const title = titleInput.value.trim();
+            const description = descriptionInput.value.trim();
+            const icon = iconInput.value.trim();
             
             if (!title || !description || !icon) {
                 showNotification('Mohon isi semua field!', 'error');
@@ -1643,12 +1689,16 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
             educationRef.push(education)
                 .then(() => {
                     showNotification('Materi edukasi berhasil ditambahkan!', 'success');
-                    document.querySelector('#edukasi input[placeholder*="Judul"]').value = '';
-                    document.querySelector('#edukasi textarea').value = '';
-                    document.querySelector('#edukasi input[placeholder*="Icon"]').value = '';
+                    
+                    // Clear form
+                    titleInput.value = '';
+                    descriptionInput.value = '';
+                    iconInput.value = '';
+                    
                     loadEducation();
                 })
                 .catch((error) => {
+                    console.error('Error saving education:', error);
                     showNotification('Gagal menambahkan materi edukasi!', 'error');
                 });
         }
@@ -1659,12 +1709,17 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
                     const tbody = document.querySelector('#edukasi .data-table tbody');
                     tbody.innerHTML = '';
                     
+                    if (!snapshot.exists()) {
+                        tbody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: #999;">Belum ada materi edukasi</td></tr>';
+                        return;
+                    }
+                    
                     snapshot.forEach((child) => {
                         const education = child.val();
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
-                            <td>${education.title}</td>
-                            <td>${education.description.substring(0, 50)}...</td>
+                            <td><i class="${education.icon}" style="margin-right: 8px;"></i> ${escapeHtml(education.title)}</td>
+                            <td>${escapeHtml(education.description.substring(0, 100))}...</td>
                             <td>
                                 <button class="btn btn-danger btn-sm" onclick="deleteEducation('${child.key}')">
                                     <i class="fas fa-trash"></i>
@@ -1673,6 +1728,10 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
                         `;
                         tbody.appendChild(tr);
                     });
+                })
+                .catch((error) => {
+                    console.error('Error loading education:', error);
+                    showNotification('Gagal memuat data materi edukasi!', 'error');
                 });
         }
 
@@ -1684,11 +1743,11 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
                         loadEducation();
                     })
                     .catch((error) => {
+                        console.error('Error deleting education:', error);
                         showNotification('Gagal menghapus materi edukasi!', 'error');
                     });
             }
         }
-
         // ==================== UPDATE BUTTON ONCLICK ====================
         // Update tombol save untuk setiap section
         document.querySelector('#momen-terbaik .btn-success').onclick = saveMoment;
@@ -1715,8 +1774,7 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
         document.getElementById('logout-btn').addEventListener('click', function() {
             if (confirm('Apakah Anda yakin ingin logout?')) {
                 showNotification('Anda telah logout dari admin panel.', 'success');
-                // Redirect to login page
-                // window.location.href = 'login.html';
+                window.location.href = 'login.html';
             }
         });
         
@@ -1790,6 +1848,45 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
         // Load comments on page load if on komentar section
         if (document.querySelector('.menu-item[data-target="komentar"]').classList.contains('active')) {
             loadCommentsAdmin();
+        }
+
+        async function uploadToCloudinary(file) {
+            if (!file) {
+                console.error("No file selected");
+                showNotification('Tidak ada file yang dipilih!', 'error');
+                return null;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", "timceri");
+
+            try {
+                showNotification('Mengupload gambar, mohon tunggu...', 'success');
+                
+                // GANTI CLOUD NAME SESUAI MILIK ANDA
+                const response = await fetch("https://api.cloudinary.com/v1_1/dt3xr42vk/image/upload", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                console.log("Cloudinary response:", data);
+
+                if (!data.secure_url) {
+                    console.error("Upload failed:", data);
+                    throw new Error(data.error?.message || "Upload gagal");
+                }
+
+                showNotification('Gambar berhasil diupload!', 'success');
+                return data.secure_url;
+                
+            } catch (err) {
+                console.error("Cloudinary upload error:", err);
+                showNotification('Gagal mengupload gambar: ' + err.message, 'error');
+                return null;
+            }
         }
         </script>
 </body>
