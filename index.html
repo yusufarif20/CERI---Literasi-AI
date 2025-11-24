@@ -101,10 +101,16 @@
         /* Hero Section */
         .hero {
             padding: 150px 0 100px;
-            background: linear-gradient(135deg, var(--cherry), var(--secondary));
+            background: 
+                linear-gradient(rgba(45, 27, 88, 0.85), rgba(41, 128, 185, 0.85)),
+                url('https://res.cloudinary.com/dt3xr42vk/image/upload/v1763714022/Untitled121_20251119170354-min_lfekd7.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             color: white;
             text-align: center;
         }
+
         
         .hero-content {
             max-width: 800px;
@@ -547,7 +553,7 @@
         
         /* Footer */
         footer {
-            background-color: var(--secondary);
+            background-color: var(--primary);
             color: white;
             padding: 50px 0 20px;
         }
@@ -639,11 +645,15 @@
         }
         
         #action .campaign-poster {
-            background-color: white;
+            flex: 0 0 350px;
+            background: var(--light);
             border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            height: fit-content; 
+            position: sticky; 
+            top: 20px;
         }
         
         #action .campaign-poster:hover {
@@ -913,7 +923,7 @@
             </div>
             <div class="about-content">
                 <div class="about-img">
-                    <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80" alt="Tim Ceri">
+                    <img src="https://res.cloudinary.com/dt3xr42vk/image/upload/v1763714022/Untitled121_20251119170354-min_lfekd7.png" alt="Tim Ceri">
                 </div>
                 <div class="about-text">
                     <h3>Siapa Kami?</h3>
@@ -1211,6 +1221,13 @@
             </div>
             <div class="action-container">
                 <div class="campaign-poster">
+                    <h3> </h3>
+                    <p> </p>
+                    <div style="margin-top: 70px;">
+                        <p><strong> </strong>  </p>
+                        <p><strong> </strong>  </p>
+                        <p><strong> </strong>  </p>
+                    </div>
                     <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1770&q=80" alt="Poster Kampanye AI Challenge 2023" class="poster-img">
                 </div>
                 
@@ -1883,6 +1900,47 @@
                 `;
                 educationContainer.appendChild(educationCard);
             });
+        });
+
+        // ==================== LOAD AKSI NYATA ====================
+        contentRef.child('aksi').on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (!data) return;
+            
+            // Update judul dan subjudul
+            const campaignTitle = document.querySelector('.campaign-title');
+            const campaignSubtitle = document.querySelector('.campaign-subtitle');
+            
+            if (campaignTitle && data.title) {
+                campaignTitle.textContent = data.title;
+            }
+            if (campaignSubtitle && data.subtitle) {
+                campaignSubtitle.textContent = `"${data.subtitle}"`;
+            }
+            
+            // Update deskripsi
+            const campaignDescription = document.querySelector('.campaign-description');
+            if (campaignDescription && data.description) {
+                campaignDescription.innerHTML = `<p>${data.description}</p>`;
+            }
+            
+            // Update ketentuan/rules
+            const rulesList = document.querySelector('.rules-list');
+            if (rulesList && data.terms) {
+                rulesList.innerHTML = '';
+                const termsArray = data.terms.split('\n').filter(term => term.trim() !== '');
+                termsArray.forEach(term => {
+                    const li = document.createElement('li');
+                    li.textContent = term.trim();
+                    rulesList.appendChild(li);
+                });
+            }
+            
+            // Update poster jika ada
+            const posterImg = document.querySelector('.poster-img');
+            if (posterImg && data.posterUrl) {
+                posterImg.src = data.posterUrl;
+            }
         });
     </script>
 </body>

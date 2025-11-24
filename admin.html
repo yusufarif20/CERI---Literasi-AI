@@ -463,22 +463,22 @@
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 30px;">
                         <div style="background: #e74c3c; color: white; padding: 20px; border-radius: 8px; text-align: center;">
                             <i class="fas fa-comments" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                            <h3>24</h3>
+                            <h3>2</h3>
                             <p>Komentar Baru</p>
                         </div>
                         <div style="background: #3498db; color: white; padding: 20px; border-radius: 8px; text-align: center;">
                             <i class="fas fa-users" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                            <h3>89</h3>
-                            <p>Pendaftar Challenge</p>
+                            <h3>4</h3>
+                            <p>Anggota Tim</p>
                         </div>
                         <div style="background: #27ae60; color: white; padding: 20px; border-radius: 8px; text-align: center;">
                             <i class="fas fa-image" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                            <h3>15</h3>
+                            <h3>3</h3>
                             <p>Foto Kegiatan</p>
                         </div>
                         <div style="background: #f39c12; color: white; padding: 20px; border-radius: 8px; text-align: center;">
                             <i class="fas fa-file-alt" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                            <h3>7</h3>
+                            <h3>3</h3>
                             <p>Materi Edukasi</p>
                         </div>
                     </div>
@@ -859,7 +859,7 @@ Peserta harus mengirimkan proposal dan prototipe (jika ada)
 Batas akhir pengumpulan: 30 November 2023 pukul 23.59 WIB
 Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
                     </div>
-                    <button class="btn btn-success">
+                    <button class="btn btn-success" onclick="saveAksiNyata(event)">
                         <i class="fas fa-save"></i> Simpan Perubahan
                     </button>
                 </div>
@@ -925,6 +925,17 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
 
     <script>
         const commentsRef = db.ref('comments');
+        
+        // ==================== AUTHENTICATION CHECK ====================
+        // Cek apakah user sudah login
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
+                // Jika belum login, redirect ke login.html
+                window.location.href = 'login.html';
+            } else {
+                console.log('User authenticated:', user.email);
+            }
+        });
         
         // ==================== NAVIGATION ====================
         document.querySelectorAll('.menu-item').forEach(item => {
@@ -1419,11 +1430,12 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
                     });
             }
         }
-
+        
         // ==================== TESTIMONI MANAGEMENT ====================
         const testimonialsRef = db.ref('testimonials');
 
         async function saveTestimonial() {
+        
             // ✅ Gunakan getElementById sesuai ID di HTML
             const nameInput = document.getElementById('testimonial-name');
             const positionInput = document.getElementById('testimonial-position');
@@ -1649,7 +1661,6 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
             }
         }
 
-
         // ==================== EDUKASI AI MANAGEMENT ====================
         const educationRef = db.ref('education');
 
@@ -1748,6 +1759,7 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
                     });
             }
         }
+        
         // ==================== UPDATE BUTTON ONCLICK ====================
         // Update tombol save untuk setiap section
         document.querySelector('#momen-terbaik .btn-success').onclick = saveMoment;
@@ -1768,14 +1780,70 @@ Keputusan juri bersifat mutlak dan tidak dapat diganggu gugat</textarea>
                 if (targetId === 'edukasi') loadEducation();
             });
         });
-        
-        // ==================== OTHER FUNCTIONALITIES ====================
-        // Logout functionality
-        document.getElementById('logout-btn').addEventListener('click', function() {
-            if (confirm('Apakah Anda yakin ingin logout?')) {
-                showNotification('Anda telah logout dari admin panel.', 'success');
-                window.location.href = 'login.html';
+
+        // ==================== AKSI NYATA MANAGEMENT ====================
+        async function saveAksiNyata(event) {  // ✅ Tambahkan parameter event
+            const sectionElement = document.getElementById('aksi');
+            if (!sectionElement) return;
+            
+            const data = {};
+            const inputs = sectionElement.querySelectorAll('input[data-field], textarea[data-field]');
+            
+            inputs.forEach(input => {
+                const fieldName = input.getAttribute('data-field');
+                if (fieldName) {
+                    data[fieldName] = input.value;
+                }
+            });
+            
+            // Upload poster jika ada
+            const fileInput = document.getElementById('challenge-poster-input');
+            const file = fileInput ? fileInput.files[0] : null;
+            
+            if (file) {
+                showNotification('Mengupload poster...', 'success');
+                const posterUrl = await uploadToCloudinary(file);
+                if (posterUrl) {
+                    data.posterUrl = posterUrl;
+                }
             }
+            
+            // Show loading
+            const saveBtn = event.target;
+            const originalText = saveBtn.innerHTML;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+            
+            // Save to Firebase
+            contentRef.child('aksi').set(data)
+                .then(() => {
+                    showNotification('Perubahan berhasil disimpan!', 'success');
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalText;
+                    
+                    if (file) {
+                        fileInput.value = '';
+                        document.getElementById('challenge-poster-preview').style.display = 'none';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error saving content:', error);
+                    showNotification('Gagal menyimpan perubahan. Silakan coba lagi.', 'error');
+                    saveBtn.disabled = false;
+                    saveBtn.innerHTML = originalText;
+                });
+        }
+
+        // ==================== OTHER FUNCTIONALITIES ====================
+        document.getElementById("logout-btn").addEventListener("click", () => {
+            auth.signOut()
+                .then(() => {
+                alert("Anda berhasil logout!");
+                window.location.href = "index.html"; 
+                })
+                .catch(error => {
+                alert("Gagal logout: " + error.message);
+                });
         });
         
         // Add buttons functionality
